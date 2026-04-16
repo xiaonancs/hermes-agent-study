@@ -1,0 +1,35 @@
+# Prevent re-introducing Cursor local files (.cursor/) into git history.
+# These paths are machine-local; committing them causes churn and accidental leaks.
+name: Block .cursor in repository
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  no-cursor-dir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject tracked files under .cursor/
+        run: |
+          set -euo pipefail
+          tracked="$(git ls-files -z -- .cursor/ | tr '\0' '\n' | sed '/^$/d' || true)"
+          if [ -n "${tracked}" ]; then
+            echo "::error::Tracked files under .cursor/ are not allowed in this repository."
+            echo "${tracked}"
+            exit 1
+          fi
+          echo "OK: no tracked paths under .cursor/"
+
+      - name: Require .cursor/ in .gitignore
+        run: |
+          set -euo pipefail
+          if ! grep -qE '^\.cursor/?$|^\.cursor/$' .gitignore; then
+            echo "::error::.gitignore must contain a .cursor/ entry so local Cursor files are not committed."
+            exit 1
+          fi
+          echo "OK: .gitignore mentions .cursor/"
