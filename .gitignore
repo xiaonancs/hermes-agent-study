@@ -1,0 +1,9 @@
+.DS_Store
+*.pyc
+__pycache__/
+scripts/logs/
+scripts/*.log
+*.bak
+bak/
+.env
+node_modules/
