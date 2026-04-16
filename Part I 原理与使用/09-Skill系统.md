@@ -29,16 +29,20 @@ Skill系统是Hermes Agent的**程序性知识管理层**。如果说Memory存�
 
 ### 渐进式披露架构
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph LR
-    L1["L1: 系统提示<br/>技能描述摘要<br/>~50 tokens/skill"] --> L2["L2: skills_list<br/>名称+触发条件<br/>~100 tokens/skill"]
-    L2 --> L3["L3: skill_view<br/>完整 SKILL.md<br/>~500-2000 tokens"]
-    L3 --> L4["L4: 链接文件<br/>skill_view file=...<br/>按需加载"]
-    L4 --> L5["L5: 执行上下文<br/>斜杠命令激活<br/>注入会话"]
-    L5 --> L6["L6: 定时任务<br/>cron绑定<br/>自动执行"]
+graph TD
+    subgraph row1 ["信息量递增"]
+        direction LR
+        L1["L1: 系统提示<br/>技能描述摘要<br/>~50 tokens/skill"] --> L2["L2: skills_list<br/>名称+触发条件<br/>~100 tokens/skill"] --> L3["L3: skill_view<br/>完整 SKILL.md<br/>~500-2000 tokens"]
+    end
+    subgraph row2 ["交互深度递增"]
+        direction LR
+        L4["L4: 链接文件<br/>skill_view file=...<br/>按需加载"] --> L5["L5: 执行上下文<br/>斜杠命令激活<br/>注入会话"] --> L6["L6: 定时任务<br/>cron绑定<br/>自动执行"]
+    end
+    L3 --> L4
 ```
 
 </div>
@@ -69,30 +73,37 @@ credentials:
 
 ### Skill生命周期
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph TB
+graph LR
     subgraph discover ["发现"]
+        direction TB
         HUB["Skills Hub 浏览"] --> SEARCH["搜索/筛选"]
         SEARCH --> PREVIEW["预览 SKILL.md"]
     end
     subgraph install ["安装"]
-        PREVIEW --> GUARD["skills_guard 安全扫描"]
+        direction TB
+        GUARD["skills_guard 安全扫描"]
         GUARD -->|"通过"| SAVE["写入 ~/.hermes/skills/"]
         GUARD -->|"拒绝"| QUARANTINE["隔离到 .quarantine/"]
     end
     subgraph use ["使用"]
-        SAVE --> LIST["skills_list 发现"]
-        LIST --> VIEW["skill_view 加载"]
+        direction TB
+        LIST["skills_list 发现"] --> VIEW["skill_view 加载"]
         VIEW --> EXEC["Agent 执行技能步骤"]
     end
     subgraph manage ["管理"]
-        EXEC --> PATCH["skill_manage patch<br/>自改进"]
-        EXEC --> DELETE["skill_manage delete"]
-        SAVE --> EDIT["skill_manage edit<br/>完整替换"]
+        direction TB
+        PATCH["skill_manage patch 自改进"]
+        EDIT["skill_manage edit 完整替换"]
+        DELETE["skill_manage delete"]
     end
+    PREVIEW --> GUARD
+    SAVE --> LIST
+    EXEC --> PATCH
+    SAVE --> EDIT
 ```
 
 </div>

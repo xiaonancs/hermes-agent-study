@@ -18,37 +18,33 @@ Evolver以Node.js实现，仓库结构为147个JS文件，其中`src/gep/`目录
 
 这是两个系统最核心的对应关系。Evolver的`src/evolve.js`中的`run()`函数实现了一个完整的10步进化循环，Hermes的对应逻辑分散在多个模块中但结构高度一致。
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
 graph TD
     subgraph Evolver["Evolver evolve.js run()"]
-        E1["1. Load Events<br/>读取events.jsonl"]
-        E2["2. Compute Signals<br/>signals.js计算信号"]
-        E3["3. Check Reflection Gate<br/>reflection.js判断是否反思"]
-        E4["4. Select Gene<br/>selector.js选择基因"]
-        E5["5. Build Prompt<br/>prompt.js构建提示"]
-        E6["6. Execute LLM<br/>调用模型执行"]
-        E7["7. Evaluate Result<br/>candidateEval.js评估"]
-        E8["8. Solidify<br/>solidify.js固化结果"]
-        E9["9. Record Event<br/>assetStore.js记录"]
-        E10["10. Update Narrative<br/>narrativeMemory.js"]
-        
-        E1 --> E2 --> E3 --> E4 --> E5 --> E6 --> E7 --> E8 --> E9 --> E10
+        subgraph ev1 [" "]
+            direction LR
+            E1["1. Load Events"] --> E2["2. Compute Signals"] --> E3["3. Reflection Gate"] --> E4["4. Select Gene"] --> E5["5. Build Prompt"]
+        end
+        subgraph ev2 [" "]
+            direction LR
+            E6["6. Execute LLM"] --> E7["7. Evaluate Result"] --> E8["8. Solidify"] --> E9["9. Record Event"] --> E10["10. Update Narrative"]
+        end
+        E5 --> E6
     end
     
     subgraph Hermes["Hermes Agent 对应步骤"]
-        H1["1. Load Memory<br/>读取MEMORY.md"]
-        H2["2. Evaluate Frontmatter<br/>skill_utils条件匹配"]
-        H3["3. Check Reflection<br/>15次tool-call评估"]
-        H4["4. List/View Skill<br/>skills_list + skill_view"]
-        H5["5. Build Prompt<br/>prompt_builder.py"]
-        H6["6. Execute Loop<br/>run_conversation()"]
-        H7["7. Evaluate Outcome<br/>tool结果分析"]
-        H8["8. Manage Skill<br/>skill_manage(patch)"]
-        H9["9. Update Memory<br/>memory_tool写入"]
-        H10["10. Update Context<br/>context_compressor"]
+        subgraph h1 [" "]
+            direction LR
+            H1["1. Load Memory"] --> H2["2. Evaluate FM"] --> H3["3. Check Reflection"] --> H4["4. List/View Skill"] --> H5["5. Build Prompt"]
+        end
+        subgraph h2 [" "]
+            direction LR
+            H6["6. Execute Loop"] --> H7["7. Evaluate Outcome"] --> H8["8. Manage Skill"] --> H9["9. Update Memory"] --> H10["10. Update Context"]
+        end
+        H5 --> H6
     end
 ```
 
@@ -90,47 +86,28 @@ graph TD
 
 ## 25.5 模块级映射
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph LR
-    subgraph Evolver_Modules["Evolver src/gep/ (50文件)"]
-        EM1["selector.js"]
-        EM2["solidify.js"]
-        EM3["reflection.js"]
-        EM4["sanitize.js"]
-        EM5["signals.js"]
-        EM6["shield.js"]
-        EM7["assetStore.js"]
-        EM8["paths.js"]
-        EM9["skillPublisher.js"]
-        EM10["mutation.js"]
+graph TD
+    subgraph group1 ["核心进化模块"]
+        direction LR
+        EM1["selector.js"] -.->|"→"| HM1["skill_commands.py"]
+        EM2["solidify.js"] -.->|"→"| HM2["skill_manager_tool.py"]
+        EM3["reflection.js"] -.->|"→"| HM3["prompt_builder.py"]
+        EM4["sanitize.js"] -.->|"→"| HM4["skills_guard.py"]
+        EM5["signals.js"] -.->|"→"| HM5["skill_utils.py"]
     end
     
-    subgraph Hermes_Modules["Hermes Agent 对应模块"]
-        HM1["agent/skill_commands.py"]
-        HM2["tools/skill_manager_tool.py"]
-        HM3["agent/prompt_builder.py<br/>15-tool-call逻辑"]
-        HM4["tools/skills_guard.py"]
-        HM5["agent/skill_utils.py"]
-        HM6["tools/skills_guard.py"]
-        HM7["tools/memory_tool.py"]
-        HM8["hermes_constants.py"]
-        HM9["tools/skills_hub.py"]
-        HM10["skill_manage(patch)"]
+    subgraph group2 ["辅助模块"]
+        direction LR
+        EM6["shield.js"] -.->|"→"| HM6["skills_guard.py"]
+        EM7["assetStore.js"] -.->|"→"| HM7["memory_tool.py"]
+        EM8["paths.js"] -.->|"→"| HM8["hermes_constants.py"]
+        EM9["skillPublisher.js"] -.->|"→"| HM9["skills_hub.py"]
+        EM10["mutation.js"] -.->|"→"| HM10["skill_manage(patch)"]
     end
-    
-    EM1 -.-> HM1
-    EM2 -.-> HM2
-    EM3 -.-> HM3
-    EM4 -.-> HM4
-    EM5 -.-> HM5
-    EM6 -.-> HM6
-    EM7 -.-> HM7
-    EM8 -.-> HM8
-    EM9 -.-> HM9
-    EM10 -.-> HM10
 ```
 
 </div>
@@ -185,11 +162,11 @@ Hermes将反思逻辑编码为tool-call计数阈值——当一次对话中工�
 
 ## 25.6 三层记忆对比
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph TB
+graph LR
     subgraph Evolver_Memory["Evolver 三层记忆"]
         EL1["L1: EVOLUTION_PRINCIPLES.md<br/>进化原则（不可变指导）"]
         EL2["L2: genes.json + capsules.json<br/>Gene库 + 执行记录"]
@@ -388,11 +365,11 @@ Hermes Agent目前没有等价的自我代码修改能力——其skill_manage�
 
 ## 25.9 综合评估
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph TB
+graph LR
     subgraph Similarities["结构性相似"]
         S1["10步进化循环"]
         S2["12组术语映射"]

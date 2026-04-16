@@ -8,11 +8,11 @@ Skill系统是Agent实现知识积累和行为扩展的核心机制。本章将H
 
 ## 30.2 格式对比
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph TB
+graph LR
     subgraph OpenClaw_Format["OpenClaw: SKILL.md"]
         OC_FM["YAML Frontmatter<br/>name, description, version"]
         OC_BODY["Markdown指令正文"]
@@ -29,7 +29,7 @@ graph TB
         H_FM --> H_BODY --> H_REF
     end
     
-    subgraph Evolver_Format["Evolver: Gene JSON + Capsule JSON"]
+    subgraph Evolver_Format["Evolver: Gene JSON"]
         E_GENE["Gene Object<br/>id, prompt, fitness,<br/>metadata, tags"]
         E_CAPSULE["Capsule Object<br/>geneId, input, output,<br/>score, timestamp"]
         E_EVENT["Event JSONL<br/>type, ts, outcome"]
@@ -143,7 +143,7 @@ function geneToSkillMd(gene) {
 
 ## 30.3 创建流程对比
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -266,18 +266,19 @@ signals.push('ban_gene:' + topGene);  // 禁止表现差的Gene
 
 ## 30.5 进化策略对比
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph TB
+graph LR
     subgraph Hermes_Evo["Hermes: Skill增量进化"]
         HP["skill_manage(patch)<br/>find-and-replace修改"]
         HE["skill_manage(edit)<br/>完整重写（大改时）"]
         HC["skill_manage(create)<br/>从成功经验创建"]
         HD["skill_manage(delete)<br/>淘汰无用skill"]
         
-        HP --- HE --- HC --- HD
+        HP --- HE
+        HC --- HD
     end
     
     subgraph Evolver_Evo["Evolver: Gene遗传进化"]
@@ -287,7 +288,8 @@ graph TB
         ES["Gene选择<br/>按fitness概率选择"]
         EB["Gene禁止<br/>ban_gene信号"]
         
-        ER --- EF --- EM --- ES --- EB
+        ER --- EF --- EM
+        ES --- EB
     end
 ```
 
@@ -382,17 +384,17 @@ function getGepAssetsDir() {
 
 ## 30.7 安全模型对比
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph TB
+graph LR
     subgraph Hermes_Sec["Hermes: skills_guard.py (929行)"]
         HS1["80+威胁模式"]
         HS2["4级严重度<br/>critical/high/medium/low"]
-        HS3["4级信任<br/>builtin/trusted/community/agent-created"]
-        HS4["策略矩阵<br/>trust × verdict → allow/block/ask"]
-        HS5["结构检查<br/>文件数/大小/二进制/符号链接"]
+        HS3["4级信任<br/>builtin/trusted/<br/>community/agent-created"]
+        HS4["策略矩阵<br/>trust × verdict →<br/>allow/block/ask"]
+        HS5["结构检查<br/>文件数/大小/<br/>二进制/符号链接"]
         HS6["Unicode注入检测<br/>17种不可见字符"]
         
         HS1 --> HS2 --> HS3 --> HS4
@@ -529,7 +531,7 @@ JiuwenClaw 的 Skill 系统最显著的特点是内置了完整的自进化机�
 
 ## 30.10 综合评估
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%

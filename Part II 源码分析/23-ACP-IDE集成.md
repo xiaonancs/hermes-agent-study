@@ -6,7 +6,7 @@ ACP（Agent Communication Protocol）适配器是 Hermes Agent 进入 IDE 生态
 
 整个适配器由 9 个 Python 文件组成（合计 1784 行），核心是 `server.py`（728 行）中的 `HermesACPAgent` 类和 `session.py`（475 行）中的 `SessionManager`。
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -94,7 +94,7 @@ agent._print_fn = _acp_stderr_print
 
 ### ACP 生命周期
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -104,25 +104,32 @@ sequenceDiagram
     participant SM as SessionManager
     participant Agent as AIAgent Thread
 
-    IDE->>ACP: initialize(protocol_version, client_info)
-    ACP-->>IDE: InitializeResponse(capabilities)
-    IDE->>ACP: authenticate(method_id)
-    ACP-->>IDE: AuthenticateResponse
-    IDE->>ACP: new_session(cwd, mcp_servers)
-    ACP->>SM: create_session(cwd)
-    SM-->>ACP: SessionState(session_id)
-    ACP-->>IDE: NewSessionResponse(session_id)
-    IDE->>ACP: prompt(text, session_id)
-    ACP->>Agent: run_in_executor(run_conversation)
-    Agent-->>ACP: tool_progress_callback
-    ACP-->>IDE: ToolCallStart(update)
-    Agent-->>ACP: thinking_callback
-    ACP-->>IDE: ThoughtText(update)
-    Agent-->>ACP: message_callback
-    ACP-->>IDE: MessageText(update)
-    Agent->>ACP: result
-    ACP->>SM: save_session()
-    ACP-->>IDE: PromptResponse(stop_reason)
+    rect rgb(245, 245, 245)
+        Note over IDE,ACP: 握手阶段
+        IDE->>ACP: initialize(protocol_version, client_info)
+        ACP-->>IDE: InitializeResponse(capabilities)
+        IDE->>ACP: authenticate(method_id)
+        ACP-->>IDE: AuthenticateResponse
+    end
+
+    rect rgb(245, 245, 245)
+        Note over IDE,SM: 会话创建
+        IDE->>ACP: new_session(cwd, mcp_servers)
+        ACP->>SM: create_session(cwd)
+        SM-->>ACP: SessionState(session_id)
+        ACP-->>IDE: NewSessionResponse(session_id)
+    end
+
+    rect rgb(245, 245, 245)
+        Note over IDE,Agent: 对话执行
+        IDE->>ACP: prompt(text, session_id)
+        ACP->>Agent: run_in_executor(run_conversation)
+        Agent-->>ACP: tool / thinking / message callbacks
+        ACP-->>IDE: ToolCallStart / ThoughtText / MessageText
+        Agent->>ACP: result
+        ACP->>SM: save_session()
+        ACP-->>IDE: PromptResponse(stop_reason)
+    end
 ```
 
 </div>
