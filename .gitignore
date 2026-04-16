@@ -1,8 +1,7 @@
 .DS_Store
 *.pyc
 __pycache__/
-scripts/logs/
-scripts/*.log
+scripts/
 *.bak
 bak/
 .env
