@@ -198,7 +198,7 @@ Telegram、Discord、Slack、WhatsApp、Signal、Matrix、Mattermost、Email、S
 
 **因子 2：OpenClaw 用户的无缝迁移**
 
-Hermes 内置的 `hermes claw migrate` 命令让 OpenClaw 的 240k+ 用户群成为现成的迁移池。一条命令即可导入人格、技能、记忆、频道配置甚至 API 密钥。这不是巧合，而是有意识的用户获取策略。
+Hermes 内置的 `hermes claw migrate` 命令让 OpenClaw 的 240k+ 用户群成为现成的迁移池。一条命令即可导入人格、技能、记忆、频道配置甚至 API 密钥。这至少说明 Hermes 在产品设计上认真考虑过 OpenClaw 用户的迁移路径；至于它是否承担了更明确的用户获取策略角色，还需要更多外部证据支持。
 
 **因子 3：六种沙箱执行后端**
 

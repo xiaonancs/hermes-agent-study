@@ -2,15 +2,17 @@
 
 **从机制本质到代码实现，从 OpenClaw 渊源到 EvoMap 争议**
 
+![Hermes Agent Study Banner](cover-banner.png)
+
 ---
 
 ## 这份研究在说什么
 
-Hermes Agent 是 2026 年最火的开源 AI Agent 项目——90k Stars，Nous Research 出品，口号是"The agent that grows with you"。
+Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k Stars，Nous Research 出品，口号是"The agent that grows with you"。
 
 但它的火爆背后有两个绕不开的问题：
 
-1. 整体架构（Gateway、Tool Registry、Skill System、启动文件体系）跟 OpenClaw（358k Stars）高度一致，只是从 TypeScript 换成了 Python，还内置了 `hermes claw migrate` 迁移工具。
+1. 整体架构（Gateway、Tool Registry、Skill System、启动文件体系）与 OpenClaw（358k Stars）存在大量可比结构，只是从 TypeScript 换成了 Python，还内置了 `hermes claw migrate` 迁移工具。
 2. 核心差异化卖点"自进化"被中国团队 EvoMap 指控架构级抄袭——10 步主循环对齐、12 组术语替换、三层记忆对应、7 份材料零引用。
 
 本研究从源码层面拆解 Hermes Agent，同时代码级对比多个同源项目，用事实说话。
@@ -35,7 +37,7 @@ Hermes Agent 是什么、怎么工作、怎么用。读完这部分你能完整�
 | [01](part1-principles-and-usage/01-项目全景与设计哲学.md) | 项目全景与设计哲学 | `run_agent.py`, `AGENTS.md` |
 | [02](part1-principles-and-usage/02-启动流程与配置系统.md) | 启动流程与配置系统 | `hermes_cli/main.py`, `config.py` |
 | [03](part1-principles-and-usage/03-初级使用方法.md) | 初级使用方法 | 安装、配置、CLI 交互、命令速查 |
-| [04](part1-principles-and-usage/04-高级使用方法.md) | 高级使用方法 | Cron 自动化、Skill 生态、Gateway 部署、MCP 集成 |
+| [04](part1-principles-and-usage/04-高级使用方法.md) | 高级使用方法 | Cron 自动化、Skill 生态、Gateway 部署、MCP 集成、Batch 使用定位 |
 | [05](part1-principles-and-usage/05-Agent核心循环.md) | Agent 核心循环 | `run_agent.py` (11,487 行) |
 | [06](part1-principles-and-usage/06-SystemPrompt组装.md) | System Prompt 组装 | `agent/prompt_builder.py` |
 | [07](part1-principles-and-usage/07-Provider与API模式.md) | Provider 与 API 模式 | `runtime_provider.py`, `auth.py` |
@@ -103,6 +105,7 @@ Hermes Agent 是什么、怎么工作、怎么用。读完这部分你能完整�
 
 - **快速了解**：读总纲，15 分钟掌握全貌
 - **快速上手**：Part I 第 3-4 章，从安装到高级用法
+- **研究型用法**：Part I 第 4 章先看高级场景定位，再接 Part II 第 25 章理解 Batch / RL 路径
 - **理解设计**：Part I 从头读，掌握"为什么这么做"
 - **看实现**：Part II 按需跳转，追踪代码路径
 - **看争议**：直接读 Part III

@@ -12,35 +12,28 @@ Skill系统是Agent实现知识积累和行为扩展的核心机制。本章将H
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph LR
+graph TD
     subgraph OpenClaw_Format["OpenClaw: SKILL.md"]
-        OC_FM["YAML Frontmatter<br/>name, description, version"]
-        OC_BODY["Markdown指令正文"]
-        OC_REF["references/ templates/"]
-        
-        OC_FM --> OC_BODY --> OC_REF
+        direction LR
+        OC_FM["YAML Frontmatter<br/>name, description, version"] --> OC_BODY["Markdown指令正文"] --> OC_REF["references/ templates/"]
     end
-    
+
     subgraph Hermes_Format["Hermes: SKILL.md"]
-        H_FM["YAML Frontmatter<br/>name, description, platforms,<br/>prerequisites, metadata.hermes"]
-        H_BODY["Markdown指令正文"]
-        H_REF["references/ templates/<br/>scripts/ assets/"]
-        
-        H_FM --> H_BODY --> H_REF
+        direction LR
+        H_FM["YAML Frontmatter<br/>name, description, platforms,<br/>prerequisites, metadata.hermes"] --> H_BODY["Markdown指令正文"] --> H_REF["references/ templates/<br/>scripts/ assets/"]
     end
-    
+
     subgraph Evolver_Format["Evolver: Gene JSON"]
-        E_GENE["Gene Object<br/>id, prompt, fitness,<br/>metadata, tags"]
-        E_CAPSULE["Capsule Object<br/>geneId, input, output,<br/>score, timestamp"]
-        E_EVENT["Event JSONL<br/>type, ts, outcome"]
-        
-        E_GENE --> E_CAPSULE --> E_EVENT
+        direction LR
+        E_GENE["Gene Object<br/>id, prompt, fitness,<br/>metadata, tags"] --> E_CAPSULE["Capsule Object<br/>geneId, input, output,<br/>score, timestamp"] --> E_EVENT["Event JSONL<br/>type, ts, outcome"]
     end
+
+    OpenClaw_Format --> Hermes_Format --> Evolver_Format
 ```
 
 </div>
 
-### 26.2.1 OpenClaw SKILL.md
+### 30.2.1 OpenClaw SKILL.md
 
 OpenClaw采用agentskills.io标准的SKILL.md格式。每个Skill是一个包含`SKILL.md`文件的目录，frontmatter使用YAML定义元数据：
 
@@ -55,7 +48,7 @@ license: MIT
 ...
 ```
 
-### 26.2.2 Hermes Agent SKILL.md
+### 30.2.2 Hermes Agent SKILL.md
 
 Hermes Agent同样采用SKILL.md格式，但在frontmatter中扩展了多个Hermes特有字段（定义在`tools/skills_tool.py`）：
 
@@ -103,7 +96,7 @@ my-skill/
 └── assets/           # 补充资源
 ```
 
-### 26.2.3 Evolver Gene JSON + Capsule JSON
+### 30.2.3 Evolver Gene JSON + Capsule JSON
 
 Evolver使用结构化的JSON格式，存储在`assets/gep/`目录下：
 
@@ -189,7 +182,7 @@ sequenceDiagram
 
 </div>
 
-### 26.3.1 Hermes Agent：Agent自主创建
+### 30.3.1 Hermes Agent：Agent自主创建
 
 Hermes Agent通过`skill_manage`工具让agent自主创建skill。`SKILL_MANAGE_SCHEMA`的description字段精确指导了创建时机：
 
@@ -204,7 +197,7 @@ Hermes Agent通过`skill_manage`工具让agent自主创建skill。`SKILL_MANAGE_
 6. `_atomic_write_text()`：原子写入
 7. `_security_scan_skill()`：安全扫描，失败则`shutil.rmtree()`回滚
 
-### 26.3.2 Evolver：自动进化生成
+### 30.3.2 Evolver：自动进化生成
 
 Evolver的Gene创建是进化循环的产物——不需要用户手动触发。进化引擎在检测到创新机会时自动：
 1. 通过`selector.js`选择基础Gene
@@ -213,7 +206,7 @@ Evolver的Gene创建是进化循环的产物——不需要用户手动触发。
 4. 通过`candidateEval.js`评估质量
 5. 评分达标后通过`solidify.js`固化为新Gene
 
-### 26.3.3 OpenClaw：用户手动创建
+### 30.3.3 OpenClaw：用户手动创建
 
 OpenClaw的skill创建主要依赖用户手动编写SKILL.md文件并放置在正确的目录中，或通过Hub安装已有skill。
 
@@ -295,7 +288,7 @@ graph LR
 
 </div>
 
-### 26.5.1 Hermes: skill_manage(patch)增量修正
+### 30.5.1 Hermes: skill_manage(patch)增量修正
 
 Hermes的skill进化以`patch`为主要手段——当agent在使用某个skill时遇到问题，它会调用`skill_manage(action='patch')`进行精确修正：
 
@@ -312,7 +305,7 @@ def _patch_skill(name, old_string, new_string, file_path=None, replace_all=False
 
 > *"Update when: instructions stale/wrong, OS-specific failures, missing steps or pitfalls found during use. If you used a skill and hit issues not covered by it, patch it immediately."*
 
-### 26.5.2 Evolver: Gene强化+失败学习管线
+### 30.5.2 Evolver: Gene强化+失败学习管线
 
 Evolver实现了更接近遗传算法的进化管线：
 
@@ -332,7 +325,7 @@ classifyFailureMode({
 });
 ```
 
-### 26.5.3 OpenClaw: 手动维护
+### 30.5.3 OpenClaw: 手动维护
 
 OpenClaw的skill进化主要依赖用户手动维护——修改SKILL.md文件内容，或从Hub更新到新版本。
 
@@ -421,9 +414,9 @@ graph LR
 
 </div>
 
-### 26.7.1 Hermes skills_guard.py：深度防御
+### 30.7.1 Hermes skills_guard.py：深度防御
 
-Hermes的安全扫描是三个项目中最全面的，覆盖10大威胁类别：
+Hermes 的安全扫描在本章比较的几个项目里覆盖面较广，覆盖 10 大威胁类别：
 
 | 类别 | 模式数 | 典型检测 |
 |------|--------|---------|
@@ -452,7 +445,7 @@ INSTALL_POLICY = {
 }
 ```
 
-### 26.7.2 Evolver sanitize.js：发布前脱敏
+### 30.7.2 Evolver sanitize.js：发布前脱敏
 
 Evolver的安全模型聚焦于**输出脱敏**而非**输入检测**：
 
