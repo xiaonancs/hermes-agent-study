@@ -6,6 +6,16 @@
 
 ---
 
+## 快速目录
+
+- [总纲](#总纲)
+- [Part I 原理与使用](#part-i-原理与使用)
+- [Part II 源码分析](#part-ii-源码分析)
+- [Part III 同源项目对比分析](#part-iii-同源项目对比分析)
+- [附录](#附录)
+
+---
+
 ## 这份研究在说什么
 
 Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k Stars，Nous Research 出品，口号是"The agent that grows with you"。

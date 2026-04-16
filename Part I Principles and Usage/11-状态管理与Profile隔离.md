@@ -18,7 +18,7 @@
 
 Hermes 采用"单一根目录 + 函数式路径解析 + Profile 目录克隆"的架构：
 
-<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
+<div style="background: #ffffff !important; background-color: #ffffff !important; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -101,7 +101,7 @@ Profile 系统（`hermes_cli/profiles.py`）让每个 Agent 实例获得完全�
 
 `home/` 子目录是 Profile 隔离最精妙的设计之一。`get_subprocess_home()` 函数（L114-137）检测此目录是否存在：如果存在，Agent 启动的所有子进程（git、ssh、gh、npm）都会将 `HOME` 环境变量指向这个目录。这意味着每个 Profile 可以有独立的 Git 身份（`~/.gitconfig`）、SSH 密钥（`~/.ssh/`）和 npm 凭证（`~/.npmrc`）。
 
-<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
+<div style="background: #ffffff !important; background-color: #ffffff !important; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
