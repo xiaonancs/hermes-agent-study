@@ -16,7 +16,7 @@
 
 ### 28.2.1 三个项目的核心定位
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -99,7 +99,7 @@ Agent Loop是AI Agent的心脏——它决定了Agent如何接收输入、调用
 
 ### 28.3.1 三种Loop架构总览
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -109,30 +109,30 @@ sequenceDiagram
     participant JC as JiuwenClaw
     participant HA as HermesAgent
 
+    rect rgb(245, 245, 245)
     Note over OH: Streaming Tool-Call Cycle
     User->>OH: 用户输入
-    OH->>OH: Stream LLM响应
-    OH->>OH: 解析tool_calls(并行执行)
-    OH->>OH: Token计数 + Cost追踪
-    OH->>OH: 失败则指数退避重试
+    OH->>OH: Stream LLM + 并行解析tool_calls
+    OH->>OH: Token计数/Cost追踪 + 指数退避重试
     OH-->>User: 流式返回结果
+    end
 
+    rect rgb(245, 245, 245)
     Note over JC: Task Planning Engine
     User->>JC: 用户输入
-    JC->>JC: 意图理解 + 任务分解
-    JC->>JC: 任务调度(支持中断/插入)
-    JC->>JC: SkillCallOperator分发
-    JC->>JC: SignalDetector监控状态
+    JC->>JC: 意图理解 + 任务分解(DAG调度)
+    JC->>JC: SkillCallOperator分发 + SignalDetector监控
     JC-->>User: 任务完成报告
+    end
 
+    rect rgb(245, 245, 245)
     Note over HA: ReAct Resilience Loop
     User->>HA: 用户输入
-    HA->>HA: 构建SystemPrompt(含Skill/Memory)
-    HA->>HA: 调用LLM API
-    HA->>HA: 解析tool_calls分发到registry
-    HA->>HA: 追加tool结果到messages
+    HA->>HA: 构建SystemPrompt + 调用LLM API
+    HA->>HA: tool_calls → registry分发 → 追加结果
     HA->>HA: 15次tool-call触发反思
     HA-->>User: 无tool_call时返回
+    end
 ```
 
 </div>
@@ -289,7 +289,7 @@ JiuwenClaw的"进化闭环"（步骤5-7）和Hermes的"反思-补丁"（步骤5-
 
 ### 28.4.6 Skill系统三方对比
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -524,7 +524,7 @@ Hermes Agent走的是"广覆盖"路线（第21章已详述）：
 
 ### 28.7.5 生态策略对比
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%

@@ -8,7 +8,7 @@ OpenClaw与Hermes Agent共享大量设计理念——两者均使用SKILL.md格�
 
 ### 24.2.1 架构拓扑
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -102,21 +102,20 @@ class AIAgent:
 
 ### 24.3.2 六级加载优先级
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph LR
-    subgraph Priority["Skill加载优先级（两项目共有）"]
-        P1["L1: 内置Skills<br/>随项目发行"]
-        P2["L2: 用户Skills<br/>~/.hermes/skills/"]
-        P3["L3: Hub Skills<br/>远程安装"]
-        P4["L4: 工作区Skills<br/>.hermes/skills/"]
-        P5["L5: 外部目录<br/>external_dirs"]
-        P6["L6: 运行时加载<br/>/skill命令"]
-        
-        P1 --> P2 --> P3 --> P4 --> P5 --> P6
+graph TD
+    subgraph row1 ["高优先级"]
+        direction LR
+        P1["L1: 内置Skills<br/>随项目发行"] --> P2["L2: 用户Skills<br/>~/.hermes/skills/"] --> P3["L3: Hub Skills<br/>远程安装"]
     end
+    subgraph row2 ["低优先级"]
+        direction LR
+        P4["L4: 工作区Skills<br/>.hermes/skills/"] --> P5["L5: 外部目录<br/>external_dirs"] --> P6["L6: 运行时加载<br/>/skill命令"]
+    end
+    P3 -->|"优先级递增"| P4
 ```
 
 </div>
@@ -212,46 +211,32 @@ OpenClaw使用`pluginRegistry`结合`coreGatewayHandlers`实现工具注册，�
 
 Hermes Agent提供了`hermes claw migrate`命令和完整的迁移skill（`optional-skills/migration/openclaw-migration/`，2794行），专门用于从OpenClaw迁移用户数据。
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
 graph LR
     subgraph Source["OpenClaw (~/.openclaw/)"]
-        S_SOUL["SOUL.md"]
-        S_MEM["MEMORY.md"]
-        S_USER["USER.md"]
-        S_CMD["command allowlist"]
-        S_SKILL["用户Skills"]
-        S_MSG["messaging settings"]
-        S_WS["workspace instructions"]
-        S_TTS["TTS assets"]
+        S_ID["身份文件<br/>SOUL.md · MEMORY.md<br/>USER.md"]
+        S_CFG["配置<br/>command allowlist<br/>messaging settings"]
+        S_ASSET["资产<br/>用户Skills · workspace<br/>TTS assets"]
     end
     
     subgraph Migration["迁移引擎<br/>openclaw_to_hermes.py"]
         M_DRY["--dry-run 预览"]
         M_EXEC["--execute 执行"]
-        M_PRE["--preset user-data/full"]
+        M_PRE["--preset<br/>user-data / full"]
     end
     
     subgraph Target["Hermes (~/.hermes/)"]
-        T_SOUL["SOUL.md"]
-        T_MEM["memory entries"]
-        T_CMD["command_allowlist"]
-        T_SKILL["skills/openclaw-imports/"]
-        T_MSG["config.yaml"]
-        T_WS["workspace AGENTS.md"]
-        T_TTS["tts/"]
+        T_ID["身份<br/>SOUL.md · memory entries"]
+        T_CFG["配置<br/>command_allowlist<br/>config.yaml"]
+        T_ASSET["资产<br/>skills/openclaw-imports/<br/>AGENTS.md · tts/"]
     end
     
-    S_SOUL --> Migration --> T_SOUL
-    S_MEM --> Migration --> T_MEM
-    S_USER --> Migration --> T_MEM
-    S_CMD --> Migration --> T_CMD
-    S_SKILL --> Migration --> T_SKILL
-    S_MSG --> Migration --> T_MSG
-    S_WS --> Migration --> T_WS
-    S_TTS --> Migration --> T_TTS
+    S_ID --> Migration --> T_ID
+    S_CFG --> Migration --> T_CFG
+    S_ASSET --> Migration --> T_ASSET
 ```
 
 </div>

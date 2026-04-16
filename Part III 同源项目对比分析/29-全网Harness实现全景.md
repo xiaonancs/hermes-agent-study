@@ -34,7 +34,7 @@ Claude Code 的 513,237 行 TypeScript 代码库横跨五个架构层级（入�
 
 围绕 Claude Code 形成的四个 Harness 项目构成了一个完整的光谱：从纯粹的源码分析，到预配置增强，到完整的开发工作流 Harness，再到轻量级脚手架优化。
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -154,7 +154,7 @@ Ship  ──→  生成 PR/MR 并准备合并
 
 ### 29.2.5 四项目关系总结
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -325,29 +325,33 @@ AutoGen 代表了"对话即计算"学派——Agent 之间的协作不需要预�
 
 综合分析全球范围内的 Harness 实现后，我们可以提炼出四种基本范式。每个项目都可以在这个分类框架中找到自己的位置。
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph TD
-    subgraph quadrant["四种 Harness 范式"]
+graph LR
+    subgraph gateway["Gateway 模式"]
         direction TB
-        subgraph gateway["Gateway 模式"]
-            GW1["OpenClaw<br/>中心化网关路由"]
-            GW2["特征: 多通道, 认证, 限流<br/>适合: 多客户端共享 Agent"]
-        end
-        subgraph loop["Execution Loop 模式"]
-            LP1["Hermes Agent<br/>轻量循环 + 韧性工程"]
-            LP2["特征: 单进程, 自我改进<br/>适合: 个人 Agent, 开发助手"]
-        end
-        subgraph orch["Orchestration 模式"]
-            OR1["LangGraph / CrewAI / AutoGen<br/>图/团队/对话编排"]
-            OR2["特征: 多 Agent 协作<br/>适合: 企业工作流"]
-        end
-        subgraph enhance["Harness Enhancement 模式"]
-            EN1["claude-code-harness 系列<br/>增强现有 Agent"]
-            EN2["特征: 非侵入, 预配置<br/>适合: 快速提升现有工具"]
-        end
+        GW1["OpenClaw<br/>中心化网关路由"]
+        GW2["多通道 · 认证 · 限流<br/>适合: 多客户端共享"]
+    end
+
+    subgraph loop["Execution Loop 模式"]
+        direction TB
+        LP1["Hermes Agent<br/>轻量循环 + 韧性工程"]
+        LP2["单进程 · 自我改进<br/>适合: 个人 Agent"]
+    end
+
+    subgraph orch["Orchestration 模式"]
+        direction TB
+        OR1["LangGraph / CrewAI / AutoGen<br/>图/团队/对话编排"]
+        OR2["多 Agent 协作<br/>适合: 企业工作流"]
+    end
+
+    subgraph enhance["Enhancement 模式"]
+        direction TB
+        EN1["claude-code-harness 系列<br/>增强现有 Agent"]
+        EN2["非侵入 · 预配置<br/>适合: 快速提升"]
     end
 
     gateway ---|"共享: MCP 工具协议"| loop
@@ -518,26 +522,32 @@ Model Context Protocol 正在成为 Harness 与外部工具交互的通用接口
 
 ### 29.6.3 "Harness 之战"：2026年的竞争格局
 
-<div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
+<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
 graph TD
-    subgraph timeline["Harness 生态关键事件时间线"]
+    subgraph period1["2024 Q3 — 2025 Q3：编排先行与 Claude Code 震撼"]
         direction LR
-        T1["2024 Q3<br/>LangChain 发布<br/>LangGraph beta"]
+        T1["2024 Q3<br/>LangGraph beta"]
         T2["2024 Q4<br/>CrewAI 发布<br/>角色扮演范式"]
         T3["2025 Q1<br/>AutoGen v0.2<br/>多 Agent 对话"]
         T4["2025 Q2<br/>Claude Code 发布<br/>513K 行代码库"]
         T5["2025 Q3<br/>OpenClaw 启动<br/>网关架构"]
+        T1 --> T2 --> T3 --> T4 --> T5
+    end
+
+    subgraph period2["2025 Q4 — 2026 Q2：Harness 爆发与标准收敛"]
+        direction LR
         T6["2025 Q4<br/>luzhenqian<br/>源码分析启动"]
-        T7["2026 Q1<br/>Hermes Agent 启动<br/>Execution Loop"]
+        T7["2026 Q1<br/>Hermes Agent<br/>Execution Loop"]
         T8["2026 Q1<br/>revfactory<br/>A/B 测试验证"]
         T9["2026 Q2<br/>Chachamaru v4.0<br/>Go 原生化"]
         T10["2026 Q2<br/>SKILL.md 格式<br/>事实标准化"]
+        T6 --> T7 --> T8 --> T9 --> T10
     end
 
-    T1 --> T2 --> T3 --> T4 --> T5 --> T6 --> T7 --> T8 --> T9 --> T10
+    T5 --> T6
 ```
 
 </div>
