@@ -555,12 +555,14 @@ graph TD
 
 ### 29.6.4 Python 为何主导新 Harness 实现
 
-在八个主要 Harness 项目中，五个使用 Python。这不是偶然的：
+在八个主要 Harness 项目中，五个使用 Python。这个现象当然可以提出一些解释，但也不宜说得太满。更稳妥的说法是：Python 在这类项目中看起来更常见，原因可能包括：
 
-1. **ML/AI 生态**：Python 是 LLM API SDK 的一等公民语言，调用 OpenAI/Anthropic/Google API 的 Python SDK 最先更新、文档最全
-2. **原型速度**：Harness 需要频繁实验和迭代，Python 的动态类型和丰富的包生态（requests、asyncio、pydantic）大幅缩短原型周期
-3. **社区基数**：AI/ML 研究者和实践者的主流语言是 Python，选择 Python 意味着更大的贡献者池
-4. **Jupyter 集成**：Harness 的测试和调试经常需要交互式探索，Jupyter Notebook 是天然的开发环境
+1. **ML/AI 生态更集中于 Python**：调用主流模型 SDK、拼接数据处理和实验脚本时，Python 往往更方便
+2. **原型与实验迭代较快**：Harness 需要频繁试验 prompt、工具、路由和工作流，Python 在这类任务上通常较顺手
+3. **社区习惯与人才池**：AI/ML 研究者和实践者更熟悉 Python，这可能自然影响了语言选择
+4. **交互式调试环境更成熟**：Notebook、脚本化实验和临时分析在 Python 生态里更常见
+
+但也要保留一个更朴素的解释：不少团队可能只是使用了自己最熟悉的语言，而不是围绕语言本身做了特别强的产品或战略判断。
 
 但 Chachamaru v4.0 的 Go 转型表明，**当 Harness 从原型走向生产时，性能和部署便利性可能迫使语言迁移**。Go 的编译型二进制分发、低延迟 goroutine 模型和零依赖部署正是生产环境所需要的。
 
