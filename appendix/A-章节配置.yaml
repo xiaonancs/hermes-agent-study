@@ -27,7 +27,7 @@ overview:
     filename: 全网调研-社区认知地图.md
     one_liner: 中英文社区技术分析索引、争议矩阵、盲区分析
 
-part_1_原理与使用:
+part_1_principles_and_usage:
   - id: ch01
     title: 项目全景与设计哲学
     filename: 01-项目全景与设计哲学.md
@@ -62,7 +62,7 @@ part_1_原理与使用:
     title: 状态管理与 Profile 隔离
     filename: 11-状态管理与Profile隔离.md
 
-part_2_源码分析:
+part_2_source_analysis:
   - id: ch12
     title: 上下文压缩与缓存
     filename: 12-上下文压缩与缓存.md
@@ -106,7 +106,7 @@ part_2_源码分析:
     title: RL 与训练环境
     filename: 25-RL与训练环境.md
 
-part_3_同源项目对比分析:
+part_3_comparative_analysis:
   - id: ch26
     title: OpenClaw 架构对比
     filename: 26-OpenClaw架构对比.md
