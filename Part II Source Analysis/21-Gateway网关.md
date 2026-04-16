@@ -6,7 +6,7 @@ Gateway 是 Hermes Agent 从单用户 CLI 工具进化为多平台服务的核�
 
 整个网关子系统由 `gateway/run.py`（9798 行）主控，配合 `session.py`（1090 行）、`delivery.py`（256 行）、`pairing.py`（309 行）、`hooks.py`（170 行）、`mirror.py`（132 行）以及 `platforms/` 目录下 24 个适配器文件（合计约 30514 行），构成了项目中规模最大的子系统。
 
-<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
+<div style="background: #ffffff !important; background-color: #ffffff !important; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -105,7 +105,7 @@ Gateway 要解决的核心难题有三个：
 
 `start()` 方法（L1726）遍历配置中的所有平台，为每个平台创建适配器实例并调用 `connect()`。连接失败的平台会被放入 `_failed_platforms` 字典，由后台任务以指数退避策略重试。
 
-<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
+<div style="background: #ffffff !important; background-color: #ffffff !important; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%

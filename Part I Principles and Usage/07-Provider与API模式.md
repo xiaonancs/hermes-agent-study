@@ -20,7 +20,7 @@ Provider 系统要解决的根本矛盾是：LLM 行业没有统一的 API 标�
 
 Hermes 将 provider 解析分为三层：身份识别（这是哪个 provider）、凭证获取（用什么 key 访问）、模式决定（用哪种 API 协议）。
 
-<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
+<div style="background: #ffffff !important; background-color: #ffffff !important; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
@@ -128,7 +128,7 @@ URL 后缀约定也参与检测：以 `/anthropic` 结尾的 base URL（如 Mini
 
 `validate_requested_model` 提供了模型验证逻辑：先格式检查（非空、无空格），再 API 探测，最后模糊匹配（`difflib.get_close_matches`，cutoff 0.9 自动纠错，cutoff 0.5 提供建议）。对于 Bedrock 这样不支持 HTTP `/models` 的 provider，会通过 AWS SDK 的 `ListFoundationModels` + `ListInferenceProfiles` 做动态发现。
 
-<div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
+<div style="background: #ffffff !important; background-color: #ffffff !important; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
