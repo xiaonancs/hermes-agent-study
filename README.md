@@ -1,35 +1,26 @@
 # Hermes Agent 深度研究
 
-**从机制本质到代码实现，从 OpenClaw 渊源到 EvoMap 争议**
-
 ![Hermes Agent Study Banner](Appendix/cover-banner.png)
 
----
+覆盖 5 个关键项目：Hermes Agent、OpenClaw、EvoMap Evolver、OpenHarness、JiuwenClaw。
+<br>38 篇文章 / 32 章正文 / 97 张架构图 / 11,000+ 行研究文本。
 
-## 快速目录
 
-- [总纲](#总纲)
-- [Part I 原理与使用](#part-i-原理与使用)
-- [Part II 源码分析](#part-ii-源码分析)
-- [Part III 同源项目对比分析](#part-iii-同源项目对比分析)
-- [附录](#附录)
-
----
-
-## 这份研究在说什么
+## 引言
 
 Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k Stars，Nous Research 出品，口号是"The agent that grows with you"。
 
 但它的火爆背后有两个绕不开的问题：
 
 1. 整体架构（Gateway、Tool Registry、Skill System、启动文件体系）与 OpenClaw（358k Stars）存在大量可比结构，只是从 TypeScript 换成了 Python，还内置了 `hermes claw migrate` 迁移工具。
-2. 核心差异化卖点"自进化"被中国团队 EvoMap 指控架构级抄袭——10 步主循环对齐、12 组术语替换、三层记忆对应、7 份材料零引用。
+2. 核心差异化卖点"Self-evolve"被 EvoMap 指控架构级抄袭——10 步主循环对齐、12 组术语替换、三层记忆对应、7 份材料零引用。
 
-本研究从源码层面拆解 Hermes Agent，同时代码级对比多个同源项目，用事实说话。
+本研究对 Hermes Agent 从三部分进行源码层面拆解：
+ <br>`Part I 使用方法与原理分析（11 章）`
+ <br>`Part II 源码解析（14 章）`
+ <br>`Part III 同源项目对比分析（7 章）`
+ <br>同时也针对性补充了近来社区讨论迅速升温的话题：`AutoResearch`。
 
-与此同时，本研究也补充了一个近来社区讨论迅速升温、但常被说得过满的话题：`autoresearch`。我们的判断是，`autoresearch` 更适合被理解为建立在 Cron、Git 与评分机制之上的研究型延展工作流，而不是当前 Hermes 面向多数用户的默认主入口。
-
----
 
 ## 研究结构
 
@@ -40,16 +31,14 @@ Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k St
 | [总纲 — Hermes Agent 技术主线分析](总纲-Hermes-Agent技术主线分析.md) | 核心机制、火爆原因、设计哲学、架构全貌 |
 | [全网调研 — 社区认知地图](全网调研-社区认知地图.md) | 中英文社区技术分析索引、观点争议、认知盲区 |
 
-### Part I 原理与使用
-
-Hermes Agent 是什么、怎么工作、怎么用。读完这部分你能完整理解它的设计逻辑，并掌握从入门到高级、再到研究型延展工作流的使用方法。
+### Part I 使用方法与原理分析（11 章）
 
 | 章节 | 主题 | 核心源码 |
 |------|------|---------|
 | [01](Part%20I%20Principles%20and%20Usage/01-项目全景与设计哲学.md) | 项目全景与设计哲学 | `run_agent.py`, `AGENTS.md` |
 | [02](Part%20I%20Principles%20and%20Usage/02-启动流程与配置系统.md) | 启动流程与配置系统 | `hermes_cli/main.py`, `config.py` |
 | [03](Part%20I%20Principles%20and%20Usage/03-初级使用方法.md) | 初级使用方法 | 安装、配置、CLI 交互、命令速查 |
-| [04](Part%20I%20Principles%20and%20Usage/04-高级使用方法.md) | 高级使用方法 | Cron 自动化、Skill 生态、Gateway 部署、MCP 集成、Batch 与 autoresearch 使用定位 |
+| [04](Part%20I%20Principles%20and%20Usage/04-高级使用方法.md) | 高级使用方法 | Cron 自动化、Skill 生态、Gateway 部署、MCP 集成、Batch 与 AutoResearch 使用定位 |
 | [05](Part%20I%20Principles%20and%20Usage/05-Agent核心循环.md) | Agent 核心循环 | `run_agent.py` (11,487 行) |
 | [06](Part%20I%20Principles%20and%20Usage/06-SystemPrompt组装.md) | System Prompt 组装 | `agent/prompt_builder.py` |
 | [07](Part%20I%20Principles%20and%20Usage/07-Provider与API模式.md) | Provider 与 API 模式 | `runtime_provider.py`, `auth.py` |
@@ -58,9 +47,7 @@ Hermes Agent 是什么、怎么工作、怎么用。读完这部分你能完整�
 | [10](Part%20I%20Principles%20and%20Usage/10-自进化引擎.md) | 自进化引擎 | `hermes-agent-self-evolution/` |
 | [11](Part%20I%20Principles%20and%20Usage/11-状态管理与Profile隔离.md) | 状态管理与 Profile 隔离 | `hermes_constants.py` |
 
-### Part II 源码分析
-
-逐模块拆解实现细节。每章追踪关键代码路径，分析设计权衡。
+### Part II 源码分析（14 章）
 
 | 章节 | 主题 | 核心源码 |
 |------|------|---------|
@@ -79,9 +66,7 @@ Hermes Agent 是什么、怎么工作、怎么用。读完这部分你能完整�
 | [24](Part%20II%20Source%20Analysis/24-安全与权限.md) | 安全与权限 | `approval.py`, `skills_guard.py` |
 | [25](Part%20II%20Source%20Analysis/25-RL与训练环境.md) | RL 与训练环境 | `environments/`, `batch_runner.py` |
 
-### Part III 同源项目对比分析
-
-代码级对比 Hermes Agent 与同源/同类项目：OpenClaw、EvoMap Evolver、OpenHarness、JiuwenClaw 及全网 Harness 实现。
+### Part III 同源项目对比分析（7 章）
 
 | 章节 | 主题 |
 |------|------|
