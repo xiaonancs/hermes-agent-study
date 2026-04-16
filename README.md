@@ -17,6 +17,8 @@ Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k St
 
 本研究从源码层面拆解 Hermes Agent，同时代码级对比多个同源项目，用事实说话。
 
+与此同时，本研究也补充了一个近来社区讨论迅速升温、但常被说得过满的话题：`autoresearch`。我们的判断是，`autoresearch` 更适合被理解为建立在 Cron、Git 与评分机制之上的研究型延展工作流，而不是当前 Hermes 面向多数用户的默认主入口。
+
 ---
 
 ## 研究结构
@@ -30,14 +32,14 @@ Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k St
 
 ### Part I 原理与使用
 
-Hermes Agent 是什么、怎么工作、怎么用。读完这部分你能完整理解它的设计逻辑，并掌握从入门到高级的使用方法。
+Hermes Agent 是什么、怎么工作、怎么用。读完这部分你能完整理解它的设计逻辑，并掌握从入门到高级、再到研究型延展工作流的使用方法。
 
 | 章节 | 主题 | 核心源码 |
 |------|------|---------|
 | [01](part1-principles-and-usage/01-项目全景与设计哲学.md) | 项目全景与设计哲学 | `run_agent.py`, `AGENTS.md` |
 | [02](part1-principles-and-usage/02-启动流程与配置系统.md) | 启动流程与配置系统 | `hermes_cli/main.py`, `config.py` |
 | [03](part1-principles-and-usage/03-初级使用方法.md) | 初级使用方法 | 安装、配置、CLI 交互、命令速查 |
-| [04](part1-principles-and-usage/04-高级使用方法.md) | 高级使用方法 | Cron 自动化、Skill 生态、Gateway 部署、MCP 集成、Batch 使用定位 |
+| [04](part1-principles-and-usage/04-高级使用方法.md) | 高级使用方法 | Cron 自动化、Skill 生态、Gateway 部署、MCP 集成、Batch 与 autoresearch 使用定位 |
 | [05](part1-principles-and-usage/05-Agent核心循环.md) | Agent 核心循环 | `run_agent.py` (11,487 行) |
 | [06](part1-principles-and-usage/06-SystemPrompt组装.md) | System Prompt 组装 | `agent/prompt_builder.py` |
 | [07](part1-principles-and-usage/07-Provider与API模式.md) | Provider 与 API 模式 | `runtime_provider.py`, `auth.py` |
@@ -105,7 +107,8 @@ Hermes Agent 是什么、怎么工作、怎么用。读完这部分你能完整�
 
 - **快速了解**：读总纲，15 分钟掌握全貌
 - **快速上手**：Part I 第 3-4 章，从安装到高级用法
-- **研究型用法**：Part I 第 4 章先看高级场景定位，再接 Part II 第 25 章理解 Batch / RL 路径
+- **研究型用法**：Part I 第 4 章先看高级场景定位与 `autoresearch` 延展，再接 Part II 第 25 章理解 Batch / RL 路径
+- **自动研究工作流**：先读 Part I 第 4 章的 `autoresearch` 小节，再按需要跳到 Part II 第 20 章 `定时任务` 和第 25 章 `RL 与训练环境`
 - **理解设计**：Part I 从头读，掌握"为什么这么做"
 - **看实现**：Part II 按需跳转，追踪代码路径
 - **看争议**：直接读 Part III

@@ -482,11 +482,13 @@ graph TD
 
 ### 7.1 为什么选择 Python 而非 TypeScript？
 
-OpenClaw 用 TypeScript，Hermes 用 Python。这个选择可能出于以下考量：
+OpenClaw 用 TypeScript，Hermes 用 Python。关于 Hermes 为什么选择 Python 而不是 TypeScript，当前公开材料里并没有看到官方给出的明确说明，因此不宜下确定性结论。更稳妥的做法，是只提出几种可能因素：
 
-1. **AI/ML 生态**：Python 是 AI 领域的主导语言，DSPy、GEPA 等学术框架都是 Python 生态
-2. **研究友好**：Nous Research 同时在做 LLM 训练和 Agent 研究，Python 统一了 RL 环境和 Agent 框架的语言栈
-3. **用户群体**：AI 工程师和研究者更熟悉 Python
+1. **AI/ML 生态的自然影响**：Python 在 AI 领域更常见，DSPy、GEPA 等相关框架也主要位于 Python 生态，这可能降低了集成和实验成本
+2. **研究与工程的混合背景**：Nous Research 同时涉及模型、训练和 Agent 工程，Python 也许让不同类型的工作更容易放在同一语言栈里
+3. **团队习惯与顺手程度**：也不排除最简单的解释，即开发团队只是选择了自己更熟悉、更顺手、迭代成本更低的语言
+
+换句话说，语言选择未必承载了某种特别强的战略意图；现有证据更支持把它看作团队背景、生态便利性和工程习惯共同作用下的结果。
 
 ### 7.2 为什么用 SQLite 而非向量数据库？
 
@@ -546,13 +548,13 @@ graph LR
 
 ### 8.3 代码级对比在 Part III 展开
 
-以上只是概览。代码级别的详细对比将在 Part III 对比分析中展开：
+以上只是概览。代码级别的详细对比将在 Part III 同源项目对比分析中展开：
 
-- **第 24 章**：OpenClaw Gateway 模式 vs Hermes ExecutionLoop 模式的架构对比
-- **第 25 章**：EvoMap Evolver 自进化主循环与 Hermes 自进化模块的逐步对比
-- **第 26 章**：三个项目的 Skill/Gene 系统对比
-- **第 27 章**：三层记忆架构的精确对应分析
-- **第 28 章**：开源伦理争议的全面梳理
+- **第 26 章**：OpenClaw Gateway 模式 vs Hermes ExecutionLoop 模式的架构对比
+- **第 27 章**：EvoMap Evolver 自进化主循环与 Hermes 自进化模块的逐步对比
+- **第 28 章**：OpenHarness 与 JiuwenClaw 的同源能力对比
+- **第 29-31 章**：Harness 全景、Skill 系统与记忆系统的多项目比较
+- **第 32 章**：开源伦理争议的全面梳理
 
 ---
 
@@ -560,7 +562,7 @@ graph LR
 
 ### Part I 原理与使用
 
-第 1-2 章从项目全景和启动流程入手。第 3-4 章提供从入门到高级的完整使用指南，涵盖安装配置、CLI 交互、Cron 自动化、Skill 生态、Gateway 多平台部署等实战内容。第 5-11 章深入核心机制：Agent 循环、Prompt 组装、Provider 路由、记忆系统、Skill 系统、自进化引擎和状态管理。
+第 1-2 章从项目全景和启动流程入手。第 3-4 章提供从入门到高级的完整使用指南，涵盖安装配置、CLI 交互、Cron 自动化、Skill 生态、Gateway 多平台部署，以及 `autoresearch` 这类研究型扩展工作流。第 5-11 章深入核心机制：Agent 循环、Prompt 组装、Provider 路由、记忆系统、Skill 系统、自进化引擎和状态管理。
 
 ### Part II 源码分析
 
