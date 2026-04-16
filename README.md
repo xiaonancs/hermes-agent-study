@@ -33,50 +33,50 @@ Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k St
 
 ### Part I 使用方法与原理分析（11 章）
 
-| 章节 | 主题 | 核心源码 |
-|------|------|---------|
-| [01](Part%20I%20Principles%20and%20Usage/01-项目全景与设计哲学.md) | 项目全景与设计哲学 | `run_agent.py`, `AGENTS.md` |
-| [02](Part%20I%20Principles%20and%20Usage/02-启动流程与配置系统.md) | 启动流程与配置系统 | `hermes_cli/main.py`, `config.py` |
-| [03](Part%20I%20Principles%20and%20Usage/03-初级使用方法.md) | 初级使用方法 | 安装、配置、CLI 交互、命令速查 |
-| [04](Part%20I%20Principles%20and%20Usage/04-高级使用方法.md) | 高级使用方法 | Cron 自动化、Skill 生态、Gateway 部署、MCP 集成、Batch 与 AutoResearch 使用定位 |
-| [05](Part%20I%20Principles%20and%20Usage/05-Agent核心循环.md) | Agent 核心循环 | `run_agent.py` (11,487 行) |
-| [06](Part%20I%20Principles%20and%20Usage/06-SystemPrompt组装.md) | System Prompt 组装 | `agent/prompt_builder.py` |
-| [07](Part%20I%20Principles%20and%20Usage/07-Provider与API模式.md) | Provider 与 API 模式 | `runtime_provider.py`, `auth.py` |
-| [08](Part%20I%20Principles%20and%20Usage/08-记忆系统.md) | 记忆系统 | `memory_manager.py`, `memory_tool.py` |
-| [09](Part%20I%20Principles%20and%20Usage/09-Skill系统.md) | Skill 系统 | `skill_commands.py`, `skills_hub.py` |
-| [10](Part%20I%20Principles%20and%20Usage/10-自进化引擎.md) | 自进化引擎 | `hermes-agent-self-evolution/` |
-| [11](Part%20I%20Principles%20and%20Usage/11-状态管理与Profile隔离.md) | 状态管理与 Profile 隔离 | `hermes_constants.py` |
+| 序号 | 章节 | 摘要 |
+|------|------|------|
+| 01 | [项目全景与设计哲学](Part%20I%20Principles%20and%20Usage/01-项目全景与设计哲学.md) | `run_agent.py`, `AGENTS.md` |
+| 02 | [启动流程与配置系统](Part%20I%20Principles%20and%20Usage/02-启动流程与配置系统.md) | `hermes_cli/main.py`, `config.py` |
+| 03 | [初级使用方法](Part%20I%20Principles%20and%20Usage/03-初级使用方法.md) | 安装、配置、CLI 交互、命令速查 |
+| 04 | [高级使用方法](Part%20I%20Principles%20and%20Usage/04-高级使用方法.md) | Cron、Skill、Gateway、MCP、AutoResearch |
+| 05 | [Agent 核心循环](Part%20I%20Principles%20and%20Usage/05-Agent核心循环.md) | `run_agent.py` (11,487 行) |
+| 06 | [System Prompt 组装](Part%20I%20Principles%20and%20Usage/06-SystemPrompt组装.md) | `agent/prompt_builder.py` |
+| 07 | [Provider 与 API 模式](Part%20I%20Principles%20and%20Usage/07-Provider与API模式.md) | `runtime_provider.py`, `auth.py` |
+| 08 | [记忆系统](Part%20I%20Principles%20and%20Usage/08-记忆系统.md) | `memory_manager.py`, `memory_tool.py` |
+| 09 | [Skill 系统](Part%20I%20Principles%20and%20Usage/09-Skill系统.md) | `skill_commands.py`, `skills_hub.py` |
+| 10 | [自进化引擎](Part%20I%20Principles%20and%20Usage/10-自进化引擎.md) | `hermes-agent-self-evolution/` |
+| 11 | [状态管理与 Profile 隔离](Part%20I%20Principles%20and%20Usage/11-状态管理与Profile隔离.md) | `hermes_constants.py` |
 
 ### Part II 源码分析（14 章）
 
-| 章节 | 主题 | 核心源码 |
-|------|------|---------|
-| [12](Part%20II%20Source%20Analysis/12-上下文压缩与缓存.md) | 上下文压缩与缓存 | `context_compressor.py`, `prompt_caching.py` |
-| [13](Part%20II%20Source%20Analysis/13-会话持久化.md) | 会话持久化 | `hermes_state.py`, `session.py` |
-| [14](Part%20II%20Source%20Analysis/14-工具系统总览.md) | 工具系统总览 | `tools/registry.py`, `toolsets.py` |
-| [15](Part%20II%20Source%20Analysis/15-终端与沙箱执行.md) | 终端与沙箱执行 | `terminal_tool.py`, `environments/` |
-| [16](Part%20II%20Source%20Analysis/16-文件与代码工具.md) | 文件与代码工具 | `file_tools.py`, `code_execution_tool.py` |
-| [17](Part%20II%20Source%20Analysis/17-浏览器自动化.md) | 浏览器自动化 | `browser_tool.py` |
-| [18](Part%20II%20Source%20Analysis/18-MCP集成.md) | MCP 集成 | `mcp_tool.py` |
-| [19](Part%20II%20Source%20Analysis/19-子Agent委托.md) | 子 Agent 委托 | `delegate_tool.py` |
-| [20](Part%20II%20Source%20Analysis/20-定时任务.md) | 定时任务 | `cron/` |
-| [21](Part%20II%20Source%20Analysis/21-Gateway网关.md) | Gateway 网关 | `gateway/run.py` (9,798 行) |
-| [22](Part%20II%20Source%20Analysis/22-插件系统.md) | 插件系统 | `plugins.py`, `plugins/` |
-| [23](Part%20II%20Source%20Analysis/23-ACP-IDE集成.md) | ACP IDE 集成 | `acp_adapter/` |
-| [24](Part%20II%20Source%20Analysis/24-安全与权限.md) | 安全与权限 | `approval.py`, `skills_guard.py` |
-| [25](Part%20II%20Source%20Analysis/25-RL与训练环境.md) | RL 与训练环境 | `environments/`, `batch_runner.py` |
+| 序号 | 章节 | 摘要 |
+|------|------|------|
+| 12 | [上下文压缩与缓存](Part%20II%20Source%20Analysis/12-上下文压缩与缓存.md) | `context_compressor.py`, `prompt_caching.py` |
+| 13 | [会话持久化](Part%20II%20Source%20Analysis/13-会话持久化.md) | `hermes_state.py`, `session.py` |
+| 14 | [工具系统总览](Part%20II%20Source%20Analysis/14-工具系统总览.md) | `tools/registry.py`, `toolsets.py` |
+| 15 | [终端与沙箱执行](Part%20II%20Source%20Analysis/15-终端与沙箱执行.md) | `terminal_tool.py`, `environments/` |
+| 16 | [文件与代码工具](Part%20II%20Source%20Analysis/16-文件与代码工具.md) | `file_tools.py`, `code_execution_tool.py` |
+| 17 | [浏览器自动化](Part%20II%20Source%20Analysis/17-浏览器自动化.md) | `browser_tool.py` |
+| 18 | [MCP 集成](Part%20II%20Source%20Analysis/18-MCP集成.md) | `mcp_tool.py` |
+| 19 | [子 Agent 委托](Part%20II%20Source%20Analysis/19-子Agent委托.md) | `delegate_tool.py` |
+| 20 | [定时任务](Part%20II%20Source%20Analysis/20-定时任务.md) | `cron/` |
+| 21 | [Gateway 网关](Part%20II%20Source%20Analysis/21-Gateway网关.md) | `gateway/run.py` (9,798 行) |
+| 22 | [插件系统](Part%20II%20Source%20Analysis/22-插件系统.md) | `plugins.py`, `plugins/` |
+| 23 | [ACP IDE 集成](Part%20II%20Source%20Analysis/23-ACP-IDE集成.md) | `acp_adapter/` |
+| 24 | [安全与权限](Part%20II%20Source%20Analysis/24-安全与权限.md) | `approval.py`, `skills_guard.py` |
+| 25 | [RL 与训练环境](Part%20II%20Source%20Analysis/25-RL与训练环境.md) | `environments/`, `batch_runner.py` |
 
 ### Part III 同源项目对比分析（7 章）
 
-| 章节 | 主题 |
-|------|------|
-| [26](Part%20III%20Comparative%20Analysis/26-OpenClaw架构对比.md) | OpenClaw 架构对比 — Gateway vs ExecutionLoop |
-| [27](Part%20III%20Comparative%20Analysis/27-EvoMap-Evolver对比.md) | EvoMap Evolver 对比 — 自进化模块逐步对比 |
-| [28](Part%20III%20Comparative%20Analysis/28-OpenHarness与JiuwenClaw对比.md) | OpenHarness 与 JiuwenClaw 对比 — 三种 Agent 哲学 |
-| [29](Part%20III%20Comparative%20Analysis/29-全网Harness实现全景.md) | 全网 Harness 实现全景 — 四种范式分类学 |
-| [30](Part%20III%20Comparative%20Analysis/30-三项目Skill系统对比.md) | 多项目 Skill 系统对比 |
-| [31](Part%20III%20Comparative%20Analysis/31-记忆系统三方对比.md) | 多项目记忆系统对比 |
-| [32](Part%20III%20Comparative%20Analysis/32-开源伦理与启示.md) | 开源伦理与启示 |
+| 序号 | 章节 | 摘要 |
+|------|------|------|
+| 26 | [OpenClaw 架构对比](Part%20III%20Comparative%20Analysis/26-OpenClaw架构对比.md) | Gateway vs ExecutionLoop |
+| 27 | [EvoMap Evolver 对比](Part%20III%20Comparative%20Analysis/27-EvoMap-Evolver对比.md) | 自进化模块逐步对比 |
+| 28 | [OpenHarness 与 JiuwenClaw 对比](Part%20III%20Comparative%20Analysis/28-OpenHarness与JiuwenClaw对比.md) | 三种 Agent 哲学 |
+| 29 | [全网 Harness 实现全景](Part%20III%20Comparative%20Analysis/29-全网Harness实现全景.md) | 四种范式分类学 |
+| 30 | [多项目 Skill 系统对比](Part%20III%20Comparative%20Analysis/30-三项目Skill系统对比.md) | 五项目横评 |
+| 31 | [多项目记忆系统对比](Part%20III%20Comparative%20Analysis/31-记忆系统三方对比.md) | 五项目横评 |
+| 32 | [开源伦理与启示](Part%20III%20Comparative%20Analysis/32-开源伦理与启示.md) | 许可、引用、社区规范 |
 
 ### 附录
 
