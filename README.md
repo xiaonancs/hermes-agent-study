@@ -2,7 +2,7 @@
 
 **从机制本质到代码实现，从 OpenClaw 渊源到 EvoMap 争议**
 
-![Hermes Agent Study Banner](cover-banner.png)
+![Hermes Agent Study Banner](appendix/cover-banner.png)
 
 ---
 
