@@ -1,3 +1,6 @@
+# Cursor IDE local config and skills (do not commit)
+.cursor/
+
 .DS_Store
 *.pyc
 __pycache__/
