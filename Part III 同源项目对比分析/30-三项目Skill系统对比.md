@@ -1,10 +1,12 @@
-# 第26章 三项目Skill系统对比
+# 第30章 多项目Skill系统对比
 
-## 26.1 引言
+## 30.1 引言
 
-Skill系统是Agent实现知识积累和行为扩展的核心机制。OpenClaw、Hermes Agent和EvoMap Evolver三个项目分别采用了不同的Skill/知识单元表示方式、创建流程、发现机制、进化策略、存储后端和安全模型。本章将从六个维度进行系统性横向对比，揭示三种路线的设计权衡。
+Skill系统是Agent实现知识积累和行为扩展的核心机制。本章将Hermes Agent、OpenClaw、EvoMap Evolver、OpenHarness和JiuwenClaw五个项目的Skill系统进行系统性横向对比，揭示五种路线的设计权衡。
 
-## 26.2 格式对比
+前三个项目（Hermes、OpenClaw、Evolver）在第26-27章中已进行了深度架构对比，本章聚焦于Skill子系统的跨项目分析。OpenHarness和JiuwenClaw的加入扩展了对比光谱：OpenHarness代表了"Claude Code兼容"路线的Skill策略，JiuwenClaw则展示了"自进化Skill"在中国企业生态中的独立实现。
+
+## 30.2 格式对比
 
 <div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
 
@@ -139,7 +141,7 @@ function geneToSkillMd(gene) {
 | 适应度分数 | — | 隐式（使用频率） | 显式`fitness`字段 |
 | 许可协议 | 开放 | MIT | ESL-1.0 |
 
-## 26.3 创建流程对比
+## 30.3 创建流程对比
 
 <div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
 
@@ -215,7 +217,7 @@ Evolver的Gene创建是进化循环的产物——不需要用户手动触发。
 
 OpenClaw的skill创建主要依赖用户手动编写SKILL.md文件并放置在正确的目录中，或通过Hub安装已有skill。
 
-## 26.4 发现机制对比
+## 30.4 发现机制对比
 
 三个项目在skill发现上采用了截然不同的策略：
 
@@ -262,7 +264,7 @@ signals.push('ban_gene:' + topGene);  // 禁止表现差的Gene
 // errors_detected：错误检测
 ```
 
-## 26.5 进化策略对比
+## 30.5 进化策略对比
 
 <div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
 
@@ -344,7 +346,7 @@ OpenClaw的skill进化主要依赖用户手动维护——修改SKILL.md文件�
 | 自动触发 | 否 | 是（使用中发现问题） | 是（进化循环） |
 | 回滚保护 | — | 原子写入+安全扫描 | 原子写入 |
 
-## 26.6 存储机制对比
+## 30.6 存储机制对比
 
 | 维度 | OpenClaw | Hermes Agent | Evolver |
 |------|----------|-------------|---------|
@@ -378,7 +380,7 @@ function getGepAssetsDir() {
 }
 ```
 
-## 26.7 安全模型对比
+## 30.7 安全模型对比
 
 <div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
 
@@ -498,7 +500,34 @@ Evolver还有`shield.js`模块（已混淆），其功能包括运行时环境�
 | 回滚策略 | — | 扫描失败自动回滚 | — |
 | 代码保护 | — | 全明文 | 核心模块混淆 |
 
-## 26.8 综合评估
+## 30.8 OpenHarness Skill 系统
+
+OpenHarness 的 Skill 策略可以概括为"兼容优先"：
+
+**格式与加载**：OpenHarness 完全兼容 Anthropic 的 SKILL.md 标准以及 Claude Code 的插件格式。Skill 采用按需加载（on-demand loading），只有在对话中明确触发时才注入 context，避免了预加载带来的 token 浪费。
+
+**工具集成**：43 个内置工具覆盖 File、Shell、Search、Web、MCP 五大类别，与 Skill 系统形成互补。Skill 负责流程编排，工具负责原子操作，两者通过 plugin ecosystem 统一管理。
+
+**与 Claude Code 的兼容性**：ohmo（OpenHarness 的内置 Agent）可以直接运行在 Claude Code 或 Codex 订阅上，这意味着为 Claude Code 编写的 Skill 可以无修改地在 OpenHarness 上运行。这种兼容性策略降低了迁移成本，但也限制了 Skill 系统的独立创新空间。
+
+**安全模型**：multi-level permission modes 和 pre/post-tool hooks 为 Skill 执行提供了细粒度的控制。与 Hermes 的 80+ 模式安全扫描不同，OpenHarness 更依赖运行时的权限门控而非静态分析。
+
+## 30.9 JiuwenClaw Skill 系统
+
+JiuwenClaw 的 Skill 系统最显著的特点是内置了完整的自进化机制：
+
+**三层架构**：
+- `SkillCallOperator`：负责 Skill 的调用执行
+- `SkillOptimizer`：基于执行反馈优化 Skill 内容
+- `SignalDetector`：检测用户纠正和执行失败信号
+
+**进化流程**：当 Skill 执行失败或用户提供纠正时，`SignalDetector` 捕获信号，`SkillOptimizer` 生成优化建议，更新记录写入 `evolutions.json`，最终合并回 Skill 文档。这与 Hermes 的 `skill_improve` 工具有相似之处，但 JiuwenClaw 将进化逻辑内建到了框架核心，而非作为可选功能。
+
+**市场生态**：支持 SkillNet 和 ClawHub 两个市场，兼容 agentskills.io 标准。这与 Hermes 的 `skills.sh` 和 `well-known` 发现机制形成互补的生态布局。
+
+**任务规划集成**：与纯 Skill 系统不同，JiuwenClaw 的 Skill 与智能任务规划引擎深度集成——Skill 不仅可以被调用，还可以被任务规划器动态编排、中断和恢复。这是其他四个项目中不具备的能力。
+
+## 30.10 综合评估
 
 <div style="background: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;">
 
@@ -523,7 +552,7 @@ graph LR
 
 </div>
 
-三个项目代表了Skill系统设计的三个位置：
+五个项目代表了Skill系统设计的五个位置：
 
 1. **OpenClaw：人类中心**。Skill格式对人类友好，创建/修改由用户驱动，安全由通道层和认证保障。适合需要精确控制skill内容的团队场景。
 
@@ -531,6 +560,10 @@ graph LR
 
 3. **Evolver：机器自治**。知识单元（Gene）以JSON格式优化机器处理，由进化引擎自动生成和淘汰，fitness分数提供量化的适应度信号。代表了自主Agent的前沿探索。
 
-从SKILL.md到Gene JSON的格式选择，从手动维护到自动进化的创建策略，从配置级策略到80+模式安全扫描的防御深度——三个项目的差异本质上反映了对"Agent应该拥有多大程度的自主性"这一根本问题的不同回答。
+4. **OpenHarness：兼容优先**。完全兼容 Claude Code/Anthropic 的 Skill 和插件格式，按需加载，以运行时权限门控替代静态安全扫描。代表了"站在巨人肩膀上"的务实路线。
 
-值得注意的是，Evolver的`skillPublisher.js`提供了Gene → SKILL.md的转换能力，而Hermes的SKILL.md格式与OpenClaw完全兼容。这意味着三个系统的知识表示层虽然内部实现不同，但在SKILL.md标准层面已经实现了互操作性。这种生态层面的格式趋同，或许是Agent Skill标准化进程中最具实际意义的发展。
+5. **JiuwenClaw：框架内建进化**。将 Skill 自进化机制（SignalDetector + SkillOptimizer）内建到框架核心，与任务规划引擎深度集成。代表了中国企业生态对自进化能力的独立实现。
+
+从SKILL.md到Gene JSON的格式选择，从手动维护到自动进化的创建策略，从配置级策略到80+模式安全扫描的防御深度——五个项目的差异本质上反映了对"Agent应该拥有多大程度的自主性"这一根本问题的不同回答。
+
+值得注意的是，Evolver的`skillPublisher.js`提供了Gene → SKILL.md的转换能力，Hermes的SKILL.md格式与OpenClaw完全兼容，OpenHarness直接兼容Anthropic格式，JiuwenClaw支持agentskills.io标准。这意味着五个系统的知识表示层虽然内部实现各异，但在SKILL.md标准层面已经初步实现了互操作性。这种生态层面的格式趋同，是Agent Skill标准化进程中最具实际意义的发展。

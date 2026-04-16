@@ -1,4 +1,4 @@
-# 第四章 SystemPrompt 组装
+# 第6章 SystemPrompt 组装
 
 ## 1 本质是什么
 
