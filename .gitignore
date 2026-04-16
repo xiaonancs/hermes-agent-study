@@ -2,6 +2,7 @@
 .cursor/
 
 .DS_Store
+.cursor/
 *.pyc
 __pycache__/
 scripts/
