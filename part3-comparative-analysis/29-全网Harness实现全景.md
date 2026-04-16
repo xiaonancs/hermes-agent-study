@@ -8,7 +8,7 @@
 
 > **Agent = Model + Harness**
 
-Claude Code 的 513,237 行 TypeScript 代码库横跨五个架构层级（入口层、核心循环层、工具层、权限层、子进程层），这本身就是 Harness 论点最有力的证据——如果模型本身就够了，为什么需要五十万行代码？
+围绕 Claude Code 所形成的大体量 TypeScript Harness 实现横跨五个架构层级（入口层、核心循环层、工具层、权限层、子进程层），这本身就是 Harness 论点的强证据——如果模型本身就够了，为什么还需要如此复杂的工程外壳？
 
 2024至2026年间，全球开源社区涌现了数十个 Harness 实现项目。它们从不同角度回答同一个问题：**如何让 LLM 从"能聊天"变成"能做事"？** 有的选择分析现有 Agent 的源码结构（逆向工程），有的选择构建预配置框架提升输出质量（增强模式），有的选择设计全新的编排拓扑（编排模式），有的选择实现极简执行循环并在其上叠加韧性工程（循环模式）。
 
@@ -16,7 +16,7 @@ Claude Code 的 513,237 行 TypeScript 代码库横跨五个架构层级（入�
 
 ### 29.1.1 Harness 论点的三层含义
 
-1. **工程层**：同一个模型在不同 Harness 下表现差异可达 60%（revfactory 的 A/B 测试数据：质量分从 49.5 提升到 79.3）
+1. **工程层**：同一个模型在不同 Harness 下的评分结果可能出现显著差异（revfactory 的 A/B 测试中，综合评分从 49.5 提升到 79.3，约为 60% 的相对提升）
 2. **架构层**：Harness 的拓扑选择（网关/循环/编排/增强）决定了 Agent 的能力边界和扩展方向
 3. **生态层**：SKILL.md 格式、MCP 协议、hook 系统等正在形成事实标准，Harness 之间的互操作性日益重要
 
@@ -38,22 +38,16 @@ Claude Code 的 513,237 行 TypeScript 代码库横跨五个架构层级（入�
 
 ```mermaid
 %%{init: {'theme': 'neutral', 'themeVariables': {'background': '#ffffff', 'primaryColor': '#f5f5f5', 'primaryTextColor': '#000000', 'primaryBorderColor': '#333333', 'lineColor': '#444444', 'textColor': '#000000', 'mainBkg': '#f5f5f5', 'nodeBorder': '#333333', 'clusterBkg': '#fafafa', 'clusterBorder': '#888888', 'edgeLabelBackground': '#ffffff'}}}%%
-graph LR
-    subgraph spectrum["Claude Harness 光谱：从分析到实践"]
-        A["luzhenqian/claude-harness<br/>源码分析<br/>83 stars"]
-        B["revfactory/claude-code-harness<br/>预配置框架<br/>质量+60%"]
-        C["Chachamaru127/claude-code-harness<br/>开发 Harness<br/>543 stars"]
-        D["naman10parikh/claude-harness<br/>脚手架优化<br/>15 skills + 8 hooks"]
+graph TD
+    subgraph row1["Claude Harness 光谱：前两段"]
+        direction LR
+        A["luzhenqian/claude-harness<br/>源码分析<br/>83 stars"] -->|"揭示结构"| B["revfactory/claude-code-harness<br/>预配置框架<br/>质量+60%"]
     end
-
-    A -->|"揭示结构"| B
-    B -->|"提升质量"| C
-    C -->|"完整工作流"| D
-
-    style A fill:#f5f5f5,stroke:#333333,color:#000000
-    style B fill:#f5f5f5,stroke:#333333,color:#000000
-    style C fill:#f5f5f5,stroke:#333333,color:#000000
-    style D fill:#f5f5f5,stroke:#333333,color:#000000
+    subgraph row2["Claude Harness 光谱：后两段"]
+        direction LR
+        C["Chachamaru127/claude-code-harness<br/>开发 Harness<br/>543 stars"] -->|"完整工作流"| D["naman10parikh/claude-harness<br/>脚手架优化<br/>15 skills + 8 hooks"]
+    end
+    B -->|"能力外延"| C
 ```
 
 </div>
@@ -91,7 +85,7 @@ graph LR
 | 基础任务 | 约 55 | 约 78.8 | +23.8 |
 | 进阶任务 | 约 48 | 约 77.6 | +29.6 |
 | 专家任务 | 约 42 | 约 78.2 | +36.2 |
-| 全局平均 | 49.5 | 79.3 | +60% |
+| 全局平均 | 49.5 | 79.3 | 约 +60%（相对提升） |
 
 关键发现：**任务越复杂，预配置 Harness 的增益越大**。这意味着 Harness 的价值不是线性的，而是超线性的——在简单任务上模型本身就能做好，但在复杂任务上，缺乏结构化引导的模型输出会急剧退化。
 
@@ -455,7 +449,7 @@ graph LR
 
 | 维度 | Hermes Agent | OpenClaw | OpenHarness | JiuwenClaw | Chachamaru | LangGraph | CrewAI | AutoGen |
 |------|-------------|----------|-------------|------------|------------|-----------|--------|---------|
-| **核心语言** | Python | TypeScript | Python | TypeScript | Go (v4.0) | Python/TS | Python | Python |
+| **核心语言** | Python | TypeScript | Python | Python | Go (v4.0) | Python/TS | Python | Python |
 | **范式** | Execution Loop | Gateway | Loop + MCP | Gateway | Enhancement | Orchestration | Orchestration | Orchestration |
 | **架构类型** | 单 Agent 循环 | 中心化网关 | 工具增强循环 | 网关 + 扩展 | 工作流包装 | 有状态图 | 角色团队 | 对话网络 |
 | **工具数量** | 15+ 内置 | 10+ 内置 | MCP 动态 | 20+ | 依赖上游 | 框架级 | 10+ 内置 | 10+ 内置 |
@@ -471,9 +465,9 @@ graph LR
 
 **语言分布**：Python 在 Harness 领域占据主导地位（8 个项目中 5 个使用 Python），TypeScript 次之（2 个），Go 是后起之秀（Chachamaru v4.0 的转型表明 Go 在高性能 Harness 中有优势）。
 
-**自我改进能力**：这是 Hermes Agent 最独特的差异化特征。在所有八个项目中，只有 Hermes 实现了完整的 skill evolution 机制。这不是巧合——自我改进需要 skill 系统、记忆系统、反思机制的完整集成，只有 Execution Loop 模式的架构才天然支持这种深度集成。
+**自我改进能力**：这是 Hermes Agent 最突出的差异化特征之一。在本章覆盖的八个项目里，Hermes 对 skill evolution 的实现投入最深之一，但这种判断仍依赖当前样本范围，而不宜外推为整个生态的绝对结论。更准确地说，自我改进需要 skill 系统、记忆系统和回顾机制的联动，而 Execution Loop 模式更容易把这些能力整合进同一条主循环。
 
-**平台覆盖**：Hermes Agent（18 平台）和 OpenClaw（20+）在平台覆盖上遥遥领先。编排框架（LangGraph/CrewAI/AutoGen）主要作为库集成使用，不直接提供消息平台适配器。
+**平台覆盖**：Hermes Agent（18 平台）和 OpenClaw（20+）在平台覆盖上处于前列。编排框架（LangGraph/CrewAI/AutoGen）主要作为库集成使用，不直接提供消息平台适配器。
 
 **沙箱支持**：安全沙箱的实现差异反映了不同项目对安全性的重视程度。Hermes Agent 和 AutoGen 使用 Docker 沙箱，其他项目要么依赖上游、要么没有沙箱支持。
 
@@ -578,7 +572,7 @@ graph TD
 
 **1. 自我改进**
 
-Hermes 是唯一实现了完整 skill evolution 机制的项目。revfactory 的 A/B 测试数据证明了 Harness 对输出质量的显著影响（+60%），而 Hermes 的自我改进机制意味着这种提升是累积性的——Agent 在使用过程中持续改进。
+在本章覆盖的样本中，Hermes 对完整 skill evolution 机制的投入最深。revfactory 的 A/B 测试数据说明 Harness 会显著影响输出评分，而 Hermes 的自我改进机制意味着这类提升有机会累积到长期使用过程中。
 
 **2. 平台覆盖**
 
@@ -621,7 +615,7 @@ revfactory 的 A/B 测试方法论——定义质量评分标准、对比有无 
 > **自主进化的个人 Agent Harness**——以 Execution Loop 为核心，以 self-improvement 为差异化，向编排能力适度扩展但不全面转向编排范式。
 
 这意味着：
-- **继续深化**自我改进机制，这是 Hermes 在八个项目中唯一的绝对优势
+- **继续深化**自我改进机制，这是 Hermes 在当前样本中最清晰的强项之一
 - **适度引入**工作流定义能力（轻量版 StateGraph），但不实现完整的编排框架
 - **保持**平台覆盖的广度优势，同时提升每个平台适配器的深度
 - **补齐**安全沙箱和质量度量的短板
@@ -672,7 +666,7 @@ revfactory 的 A/B 测试是目前少数对 Harness 效果进行定量评估的�
 在八个项目的对比中，安全性是被一致低估的维度：
 
 - 只有 Hermes 和 AutoGen 实现了基本的沙箱执行
-- 没有项目实现了完整的 prompt injection 防御
+- 没有项目实现了对 prompt injection 的一劳永逸防御；更准确的现实是，各项目通常只实现了局部防护层，仍存在被绕过或覆盖不足的空间
 - 权限模型普遍简陋——大多数 Harness 中，Agent 对所有工具拥有无限制访问权
 - 审计日志在大多数项目中缺失或不完整
 
@@ -688,7 +682,7 @@ revfactory 的 A/B 测试是目前少数对 Harness 效果进行定量评估的�
 
 3. **Claude Harness 生态**：四个 claude-harness 项目形成了从分析到实践的完整光谱，revfactory 的 A/B 测试首次量化证明了 Harness 对输出质量的 60% 提升
 
-4. **Hermes 的差异化**：自我改进是 Hermes 在八个项目中唯一的绝对优势，平台覆盖和韧性工程是相对优势
+4. **Hermes 的差异化**：自我改进是 Hermes 在当前样本中最突出的差异化方向，平台覆盖和韧性工程则构成相对优势
 
 5. **生态挑战**：碎片化、互操作性缺失、评估标准缺失、安全性忽视是整个 Harness 生态面临的系统性问题
 

@@ -1,10 +1,10 @@
 # 第27章 EvoMap-Evolver对比
 
-## 25.1 引言
+## 27.1 引言
 
-本章是对比分析部分最关键的一章。EvoMap Evolver（以下简称Evolver）是一个基于遗传表达式编程(GEP)思想的Agent自我进化引擎，于2026年2月1日公开发布。Hermes Agent的self-evolution模块在36天后（2026年3月9日）创建。两者在进化循环结构、术语体系、模块映射和设计模式上呈现出高度的系统性对应关系。本章将从代码层面逐一对比，既呈现相似性的证据，也分析差异性的原因。
+本章是对比分析部分的一章重点内容。EvoMap Evolver（以下简称Evolver）是一个基于遗传表达式编程(GEP)思想的Agent自我进化引擎，于2026年2月1日公开发布。Hermes Agent的self-evolution模块在36天后（2026年3月9日）创建。两者在进化循环结构、术语体系、模块映射和设计模式上呈现出显著的结构对应关系，但这种对应本身并不足以单独证明直接继承关系。本章将从代码层面逐一对比，既呈现相似性的证据，也分析差异性的原因与不确定性边界。
 
-## 25.2 时间线与背景
+## 27.2 时间线与背景
 
 | 事件 | 日期 | 间隔 |
 |------|------|------|
@@ -14,9 +14,9 @@
 
 Evolver以Node.js实现，仓库结构为147个JS文件，其中`src/gep/`目录包含50个模块。Hermes Agent使用Python实现，self-evolution相关功能分布在`tools/skill_manager_tool.py`、`tools/skills_guard.py`、`agent/skill_commands.py`等文件中。
 
-## 25.3 十步进化循环对比
+## 27.3 十步进化循环对比
 
-这是两个系统最核心的对应关系。Evolver的`src/evolve.js`中的`run()`函数实现了一个完整的10步进化循环，Hermes的对应逻辑分散在多个模块中但结构高度一致。
+这是两个系统最核心的对应关系。Evolver的`src/evolve.js`中的`run()`函数实现了一个完整的10步进化循环，Hermes的对应逻辑分散在多个模块中，在若干步骤上可以观察到较强的结构相似性。
 
 <div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
@@ -56,18 +56,18 @@ graph TD
 |------|---------|-------------|---------|
 | 1. 加载历史 | `assetStore.js`读取`events.jsonl` | `memory_tool.py`读取`MEMORY.md` | JSONL → Markdown |
 | 2. 计算信号 | `signals.js`从事件计算`signals[]` | `skill_utils.py`解析frontmatter条件 | 信号匹配 → 条件匹配 |
-| 3. 反思门控 | `reflection.js`周期触发 | 15次tool-call后自动评估 | 周期触发 → 阈值触发 |
+| 3. 反思门控 | `reflection.js`周期触发 | 周期性回顾与门控触发 | 周期触发 → 阈值/回顾触发 |
 | 4. 选择目标 | `selector.js`按fitness选Gene | `skills_list()`+`skill_view()` | 适应度选择 → 渐进披露 |
 | 5. 构建提示 | `prompt.js`拼接上下文 | `prompt_builder.py`构建系统提示 | 功能等价 |
 | 6. 执行模型 | LLM API调用 | `run_conversation()`循环 | 均为LLM执行 |
 | 7. 评估结果 | `candidateEval.js`多维评分 | tool结果解析+失败检测 | 结构化评估 |
 | 8. 固化结果 | `solidify.js`写入Gene/Capsule | `skill_manage(action='patch')` | 基因固化 → skill补丁 |
 | 9. 记录事件 | `assetStore.js`追加event | `memory_tool.py`写入记忆 | 事件日志 → 记忆条目 |
-| 10. 更新叙事 | `narrativeMemory.js`更新叙事 | `ContextCompressor`压缩上下文 | 叙事 → 上下文压缩 |
+| 10. 更新叙事 | `narrativeMemory.js`更新叙事 | `ContextCompressor`压缩上下文 | 这是较松散的对应：前者偏长期叙事记忆，后者偏上下文预算管理 |
 
-## 25.4 术语系统性映射
+## 27.4 术语系统性映射
 
-两个系统之间存在12组系统性的术语替换关系。这种一一对应不是巧合，而是设计级别的概念迁移：
+两个系统之间存在12组值得注意的术语映射关系。它们说明两者在问题拆解上有较强可比性，但是否构成直接的概念迁移，仍需要结合更多外部证据审慎判断：
 
 | 序号 | Evolver术语 | Hermes术语 | 语义 |
 |------|------------|-----------|------|
@@ -77,14 +77,14 @@ graph TD
 | 4 | `signals_match()` | frontmatter条件 | 触发条件匹配 |
 | 5 | Selector | `skills_list`+`skill_view` | 知识单元发现与选择 |
 | 6 | `mutation()` | `skill_manage(patch)` | 知识变异/增量修改 |
-| 7 | `reflection()` | 15-tool-call评估 | 周期性自我反思 |
+| 7 | `reflection()` | 周期性回顾/评估 | 周期性自我反思 |
 | 8 | `EVOLUTION_PRINCIPLES.md` | `MEMORY.md` | 持久化指导原则 |
 | 9 | `events.jsonl` | SQLite FTS5 | 事件/记忆存储后端 |
 | 10 | `sanitize()` | `skills_guard.py` | 安全清洗/扫描 |
 | 11 | fitness score | skill使用频率/成功率 | 适应度评估 |
 | 12 | `shield.js` | `skills_guard.py` | 安全防护层 |
 
-## 25.5 模块级映射
+## 27.5 模块级映射
 
 <div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
@@ -112,7 +112,7 @@ graph TD
 
 </div>
 
-### 25.5.1 selector.js → skill_commands.py
+### 27.5.1 selector.js → skill_commands.py
 
 Evolver的`selector.js`（12万+字符，已混淆）负责从Gene池中按适应度选择最优Gene。其核心逻辑包括：
 - 从`genes.json`加载所有Gene
@@ -134,7 +134,7 @@ def scan_skill_commands() -> Dict[str, Dict[str, Any]]:
             _skill_commands[f"/{cmd_name}"] = {...}
 ```
 
-### 25.5.2 solidify.js → skill_manager_tool.py
+### 27.5.2 solidify.js → skill_manager_tool.py
 
 Evolver的`solidify.js`（同样被混淆）负责将成功的执行结果固化为新的Gene或更新现有Gene。Hermes的`skill_manager_tool.py`提供了等价功能：
 
@@ -151,7 +151,7 @@ def skill_manage(action, name, content=None, ...):
 - **安全扫描**：写入后立即扫描，失败则回滚
 - **容量控制**：Evolver限制Gene数量，Hermes限制`MAX_SKILL_CONTENT_CHARS = 100,000`
 
-### 25.5.3 reflection.js → 15-tool-call评估
+### 27.5.3 reflection.js → 周期性回顾机制
 
 Evolver的`reflection.js`（已混淆）导出`shouldReflect()`和`buildReflectionPrompt()`函数，决定何时触发反思循环。其判断依据包括：
 - 循环次数是否达到阈值
@@ -160,7 +160,7 @@ Evolver的`reflection.js`（已混淆）导出`shouldReflect()`和`buildReflecti
 
 Hermes将反思逻辑编码为tool-call计数阈值——当一次对话中工具调用次数超过15次时，系统自动评估当前策略是否有效。
 
-## 25.6 三层记忆对比
+## 27.6 三层记忆对比
 
 <div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 
@@ -214,9 +214,9 @@ function getEvolutionPrinciplesPath() {
 
 Hermes通过`hermes_constants.py`的`get_hermes_home()`、`get_skills_dir()`等函数实现等价的路径管理。
 
-## 25.7 设计模式对比
+## 27.7 设计模式对比
 
-### 25.7.1 多维评分
+### 27.7.1 多维评分
 
 Evolver在`candidateEval.js`中实现多维评分系统，从多个维度评估执行结果。`reflection.js`中的`computeEventScoring()`函数提供信号评估：
 
@@ -226,7 +226,7 @@ Evolver在`candidateEval.js`中实现多维评分系统，从多个维度评估�
 
 Hermes通过`_detect_tool_failure()`（`agent/display.py`）实现类似的结果评估。
 
-### 25.7.2 约束门控
+### 27.7.2 约束门控
 
 Evolver通过`signals.js`的信号系统实现约束门控——当检测到`ban_gene`、`plateau`或`errors_detected`信号时，进化循环会调整策略或跳过特定Gene。
 
@@ -236,7 +236,7 @@ Hermes的约束体现在`skill_manager_tool.py`中：
 - Frontmatter完整性：`_validate_frontmatter()`强制要求name和description字段
 - 路径安全：`_validate_file_path()`防止目录遍历
 
-### 25.7.3 安全扫描
+### 27.7.3 安全扫描
 
 两个系统都在知识写入后执行安全扫描：
 
@@ -281,7 +281,7 @@ THREAT_PATTERNS = [
 | Unicode注入 | — | 17种不可见字符检测 |
 | 策略矩阵 | — | `INSTALL_POLICY`×verdict交叉矩阵 |
 
-### 25.7.4 原子写入
+### 27.7.4 原子写入
 
 两个系统均实现了原子写入保证：
 
@@ -302,7 +302,7 @@ def _atomic_write_text(file_path: Path, content: str):
         raise
 ```
 
-### 25.7.5 容量控制
+### 27.7.5 容量控制
 
 Evolver通过Gene池大小和capsule保留策略控制膨胀。Hermes通过多个层面控制：
 - `MAX_SKILL_CONTENT_CHARS = 100,000`（约36k token）
@@ -310,11 +310,11 @@ Evolver通过Gene池大小和capsule保留策略控制膨胀。Hermes通过多�
 - `MAX_FILE_COUNT = 50`（skills_guard.py结构检查）
 - `MAX_TOTAL_SIZE_KB = 1024`（1MB总量限制）
 
-## 25.8 差异性分析
+## 27.8 差异性分析
 
 尽管存在大量对应关系，两个系统在以下方面存在实质性差异：
 
-### 25.8.1 学术引用
+### 27.8.1 学术引用
 
 Evolver明确引用了GEPA(Genetic Expression Programming for Agents)和DSPy学术框架。`src/gep/`目录名直接来源于GEP概念。`skillPublisher.js`在生成的SKILL.md中标注：
 
@@ -324,7 +324,7 @@ lines.push('*This Skill was generated by [Evolver](https://github.com/autogame-1
 
 Hermes Agent没有使用GEP术语，而是将进化概念重新包装为更实用的"程序性记忆管理"（skill management）。
 
-### 25.8.2 技术栈差异
+### 27.8.2 技术栈差异
 
 | 维度 | Evolver | Hermes Agent |
 |------|---------|-------------|
@@ -334,7 +334,7 @@ Hermes Agent没有使用GEP术语，而是将进化概念重新包装为更实�
 | 包管理 | npm | pip/uv |
 | 事件存储 | events.jsonl (append-only) | SQLite FTS5 (可检索) |
 
-### 25.8.3 触发机制
+### 27.8.3 触发机制
 
 Evolver采用显式的进化循环触发——通过`idleScheduler.js`检测空闲时间或通过CLI命令手动触发进化。
 
@@ -342,13 +342,13 @@ Hermes的skill进化是隐式触发的：
 - 当agent在对话中发现现有skill不够准确，会主动调用`skill_manage(action='patch')`修正
 - `SKILL_MANAGE_SCHEMA`的description指导agent何时更新：*"Update when: instructions stale/wrong, OS-specific failures, missing steps or pitfalls found during use"*
 
-### 25.8.4 代码混淆
+### 27.8.4 代码混淆
 
 Evolver的核心模块（`evolve.js`、`solidify.js`、`selector.js`、`reflection.js`、`shield.js`）均经过JavaScript混淆处理，使用`_0x`前缀的变量名和字符串编码。而辅助模块（`paths.js`、`sanitize.js`、`signals.js`、`taskReceiver.js`等）保持明文。
 
 这种选择性混淆策略暗示：被混淆的模块包含Evolver视为核心IP的算法逻辑，而辅助模块的开放则方便社区贡献和调试。
 
-### 25.8.5 自我PR能力
+### 27.8.5 自我PR能力
 
 Evolver独有的`selfPR.js`模块允许进化引擎修改自身代码并自动创建Pull Request：
 
@@ -363,7 +363,7 @@ const PROTECTED_SELF_EVOLUTION_PATHS = [
 
 Hermes Agent目前没有等价的自我代码修改能力——其skill_manage仅修改SKILL.md内容，不触及agent自身代码。
 
-## 25.9 综合评估
+## 27.9 综合评估
 
 <div style="background-color: #ffffff; padding: 16px; border-radius: 8px; margin: 16px 0;" bgcolor="#ffffff">
 

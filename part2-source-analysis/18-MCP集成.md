@@ -156,7 +156,7 @@ def _convert_mcp_schema(server_name, mcp_tool):
 | 安全扫描 | 描述注入检测+凭证清洗 | 无 | 无 |
 | 工具过滤 | include/exclude白黑名单 | 无 | 无 |
 
-Hermes的MCP实现是目前开源Agent中最完整的之一，特别是Sampling支持和动态工具发现在其他客户端中极为少见。
+Hermes 的 MCP 实现属于当前开源 Agent 中完成度较高的一类，尤其是 Sampling 支持和动态工具发现，在本研究比较到的客户端里都不算常见。
 
 ## 14.7 遗留问题
 

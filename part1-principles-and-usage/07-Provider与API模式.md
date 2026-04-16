@@ -185,7 +185,7 @@ sequenceDiagram
 | 自定义端点 | 命名 provider + pool | 无 | base URL 覆盖 |
 | 定价查询 | 实时 /models 定价 | 无 | 无 |
 
-Hermes 的 provider 系统是所有开源 coding agent 中最全面的——它是唯一同时支持 4 种 API 协议、凭证池轮换和 25+ provider 的实现。
+Hermes 的 provider 系统在本研究比较范围内属于覆盖面很广的一类实现：它同时支持 4 种 API 协议、凭证池轮换和 25+ provider。这更适合被理解为“覆盖面较广”的实现，而不是简单归纳为绝对最全面。
 
 ## 7 仍存在的问题和缺陷
 

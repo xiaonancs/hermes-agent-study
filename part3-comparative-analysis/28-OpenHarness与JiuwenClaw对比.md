@@ -8,7 +8,7 @@
 
 - **OpenHarness**由香港大学数据科学实验室（HKUDS）开发，走学术严谨路线，以Claude Code兼容为核心设计目标，内置个人Agent "ohmo"，最新版本v0.1.6（2026年4月10日）已支持auto-compaction和headless worker模式。
 - **JiuwenClaw**由openJiuwen-ai团队构建，面向中国企业生态，深度整合华为云MaaS和飞书平台，以智能任务规划和Skill自进化为核心卖点，采用Apache 2.0协议开源。
-- **Hermes Agent**以社区驱动和自我改进为差异化定位，支持14个消息平台、SQLite FTS5记忆引擎、多维度自进化系统。
+- **Hermes Agent**以社区驱动和自我改进为差异化定位，支持约18个消息适配器、SQLite FTS5记忆引擎和多层自改进机制。
 
 本章将按照七维度框架——项目定位、Agent Loop、Skill系统、记忆管理、安全模型、平台集成、设计哲学——逐一展开对比，揭示三种Agent哲学在代码实现中的具体体现。
 
@@ -45,7 +45,7 @@ graph TD
         HA1["社区驱动生态"]
         HA2["ReAct韧性循环"]
         HA3["多维自进化引擎"]
-        HA4["14平台Gateway"]
+        HA4["18适配器Gateway"]
         HA1 --> HA2
         HA2 --> HA3
         HA3 --> HA4
@@ -58,7 +58,7 @@ graph TD
 
 | 维度 | OpenHarness | JiuwenClaw | Hermes Agent |
 |------|------------|------------|-------------|
-| 语言 | Python | Python (79.9%) | Python |
+| 语言 | Python | Python（仓库以 Python 代码为主，统计口径以 GitHub 语言页为准） | Python |
 | Stars | 9,884 | 398 | — |
 | 开源协议 | MIT | Apache 2.0 | 自定义 |
 | 首次发布 | 2026年Q1 | 2026-03-05 | 2026-03-09 |
@@ -66,7 +66,7 @@ graph TD
 | 核心架构 | Streaming tool-call循环 | 任务规划引擎 | ReAct conversation loop |
 | 主要用户群 | 学术研究者、Claude Code用户 | 华为生态企业 | 开源社区开发者 |
 | 模型支持 | Claude (Anthropic订阅) | 华为云MaaS、通用模型 | OpenAI、Anthropic、Google、本地模型 |
-| 平台重心 | CLI终端 + ohmo Bot | 飞书、华为小艺 | 14个消息平台 + Gateway |
+| 平台重心 | CLI终端 + ohmo Bot | 飞书、华为小艺 | 多平台 Gateway（约18个适配器） |
 | 部署模式 | 本地CLI / headless worker | 自托管部署 | 本地 / systemd / launchd |
 | 工具数量 | 43个内置工具 | Skill驱动 | registry.py注册表 |
 | Skill标准 | SKILL.md / agentskills.io | SKILL.md / SkillNet | SKILL.md / agentskills.io |
@@ -74,7 +74,7 @@ graph TD
 ### 28.2.3 GitHub仓库概况
 
 - **OpenHarness**: `github.com/HKUDS/OpenHarness`，描述为"Open Agent Harness with a Built-in Personal Agent--Ohmo!"，Python实现，社区活跃度高，v0.1.6引入auto-compaction和Markdown rendering in React TUI
-- **JiuwenClaw**: `github.com/openJiuwen-ai/jiuwenclaw`，描述为"JiuwenClaw is an intelligent AI Agent built on openJiuwen"，Python 79.9%，面向企业级AI Agent场景
+- **JiuwenClaw**: `github.com/openJiuwen-ai/jiuwenclaw`，描述为"JiuwenClaw is an intelligent AI Agent built on openJiuwen"，仓库以 Python 实现为主，面向企业级 AI Agent 场景
 - **Hermes Agent**: 社区驱动的自改进Agent项目，`run_agent.py`达11,487行，以韧性工程和渐进式上下文管理为核心
 
 三个项目都选择了Python作为主要语言，这与AI Agent生态中Python的统治地位一致——LLM SDK（openai、anthropic）、数据处理（pandas、numpy）、Web框架（Flask、FastAPI）均以Python为第一公民。但三者在架构模式上的分歧反映了不同的价值取向。
@@ -130,7 +130,7 @@ sequenceDiagram
     User->>HA: 用户输入
     HA->>HA: 构建SystemPrompt + 调用LLM API
     HA->>HA: tool_calls → registry分发 → 追加结果
-    HA->>HA: 15次tool-call触发反思
+    HA->>HA: 周期性反思/回顾触发
     HA-->>User: 无tool_call时返回
     end
 ```
@@ -184,7 +184,7 @@ class AIAgent:
 ```
 
 关键韧性机制包括：
-- **15次tool-call反思门控**：防止Agent陷入无效循环
+- **周期性反思门控**：在长任务中插入回顾，防止Agent长期陷入无效循环
 - **上下文压缩**：`ContextCompressor`在messages过长时自动压缩历史
 - **渐进式Skill加载**：只在需要时加载Skill，避免一次性消耗过多context window
 - **多Provider容错**：支持在OpenAI、Anthropic、Google等多个后端之间failover
@@ -197,7 +197,7 @@ class AIAgent:
 | 工具执行 | 并行执行 | SkillCallOperator串行 | 串行逐个执行 |
 | 错误处理 | 指数退避自动重试 | 任务状态标记failed | 韧性工程 + 多Provider容错 |
 | 流式输出 | 原生支持 | 视平台而定 | 支持 |
-| 反思机制 | 未明确公开 | SignalDetector监控 | 15次tool-call自动反思 |
+| 反思机制 | 未明确公开 | SignalDetector监控 | 周期性反思与回顾 |
 | Token管理 | 内置计数 + 费用追踪 | 未明确公开 | ContextCompressor自动压缩 |
 | 中断支持 | 未明确 | 原生支持中断/插入/重排 | 未原生支持 |
 | 代码规模 | 模块化，分布在多文件 | 任务引擎 + Skill层 | run_agent.py 11,487行 |
@@ -244,7 +244,7 @@ SignalDetector     →  信号检测层（监控失败/纠正信号）
 
 **进化闭环**：当SignalDetector检测到Skill执行失败或用户纠正行为时，会生成信号写入`evolutions.json`。SkillOptimizer周期性消费这些信号，对Skill文档提出修改建议，修改经过验证后合并回Skill文档正文。
 
-这与Hermes Agent的自进化机制（第10章详述）在设计模式上高度一致，但JiuwenClaw将其拆分为三个独立组件，职责划分更清晰。
+这与 Hermes Agent 的自进化机制（第10章详述）在设计意图上有较强相似性，但 JiuwenClaw 将其拆分为三个独立组件，职责划分更清晰。
 
 ### 28.4.4 Hermes Agent: 渐进加载与会话进化
 
@@ -254,7 +254,7 @@ Hermes Agent的Skill系统兼具加载优化和运行时进化：
 
 **会话级Skill创建**：Hermes独有的`/skill create`命令允许Agent在当前会话中从经验创建新Skill。比如Agent在解决一个复杂的调试问题后，可以将解决步骤固化为新的Skill文档。
 
-**自进化引擎**：15次tool-call反思门控与`skill_manage(action='patch')`配合，实现了"执行-反思-改进"闭环。
+**自进化引擎**：Hermes 在长对话与后台回顾中结合反思触发和 `skill_manage(action='patch')`，形成"执行-反思-改进"闭环。
 
 ### 28.4.5 Skill生命周期对比
 
@@ -281,11 +281,11 @@ Skill从创建到退役的完整生命周期在三个项目中有着不同的阶
 2. **注册**：放入`~/.hermes/skills/`目录
 3. **条件匹配**：frontmatter中的`when`条件决定是否加载
 4. **渐进加载**：匹配成功的Skill按优先级注入
-5. **执行与反思**：15次tool-call后触发反思评估
+5. **执行与反思**：在长任务中触发周期性回顾
 6. **补丁**：`skill_manage(action='patch')`增量修改
-7. **安全扫描**：`skills_guard.py`定期扫描安全风险
+7. **安全扫描**：`skills_guard.py` 负责 Skill 安装与内容扫描
 
-JiuwenClaw的"进化闭环"（步骤5-7）和Hermes的"反思-补丁"（步骤5-6）虽然在实现细节上不同，但在设计意图上高度一致：都在追求Agent从使用经验中改进自身能力的目标。
+JiuwenClaw 的"进化闭环"（步骤5-7）和 Hermes 的"反思-补丁"（步骤5-6）虽然在实现细节上不同，但在设计意图上具有较强可比性：都在追求 Agent 从使用经验中改进自身能力的目标。
 
 ### 28.4.6 Skill系统三方对比
 
@@ -333,7 +333,7 @@ graph LR
 |------|------------|------------|-------------|
 | 加载策略 | 按需加载 | SkillCallOperator调度 | 渐进式frontmatter条件加载 |
 | 内置工具 | 43个（5大类） | Skill驱动 | registry.py注册表 |
-| 进化机制 | 未明确公开 | 三层架构(Operator/Optimizer/Detector) | 15-tool-call反思 + skill_manage |
+| 进化机制 | 未明确公开 | 三层架构(Operator/Optimizer/Detector) | 周期性回顾 + `skill_manage` |
 | 进化存储 | — | evolutions.json | MEMORY.md + SKILL.md补丁 |
 | 生态兼容 | Anthropic skills/plugins | SkillNet, ClawHub | agentskills.io |
 | Skill创建 | 插件安装 | 市场安装 + 自进化生成 | 会话级/skill create创建 |
@@ -391,7 +391,7 @@ Hermes的独特之处在于`ContextCompressor`——当messages总长度超过�
 | 上下文压缩 | Auto-Compaction (v0.1.6) | 三层架构自动回溯 | ContextCompressor智能压缩 |
 | 会话恢复 | 原生支持 | 任务状态持久化 | 文件系统持久化 |
 | 搜索引擎 | 未明确 | 未明确 | SQLite FTS5全文搜索 |
-| 抗遗忘机制 | Auto-Compaction | SignalDetector矛盾检测 | 15-tool-call反思门控 |
+| 抗遗忘机制 | Auto-Compaction | SignalDetector矛盾检测 | 周期性回顾与上下文压缩 |
 
 ### 28.5.5 上下文窗口利用率分析
 
@@ -450,7 +450,7 @@ JiuwenClaw的安全设计围绕**企业数据主权**展开，这反映了中国
 
 Hermes Agent在安全设计上取中间路线：
 
-**危险命令审批**：`skills_guard.py`维护了一个危险命令清单，当Agent尝试执行如`rm -rf`、`chmod 777`、`sudo`等命令时，需要用户显式审批。
+**危险命令审批**：危险命令审批主逻辑位于 `approval.py`。当Agent尝试执行如`rm -rf`、`chmod 777`、`sudo`等命令时，需要用户显式审批；`skills_guard.py` 更偏向 Skill 安装与内容扫描。
 
 **允许列表（Allowlists）**：用户可以配置白名单，将已知安全的命令和路径标记为信任，后续执行无需重复审批。
 
@@ -494,11 +494,11 @@ JiuwenClaw的平台策略聚焦于中国企业办公生态：
 
 **Web界面**：提供独立的Web管理界面，用于Skill管理、任务监控、系统配置等运维操作。
 
-### 28.7.3 Hermes Agent: 14平台Gateway架构
+### 28.7.3 Hermes Agent: 多平台 Gateway 架构
 
 Hermes Agent走的是"广覆盖"路线（第21章已详述）：
 
-**14个消息平台适配器**：包括Telegram、Discord、Slack、飞书、微信、WhatsApp、Matrix、IRC等主流消息平台，通过Gateway统一接入。
+**多平台消息适配器**：包括 Telegram、Discord、Slack、飞书、微信、WhatsApp、Matrix、Signal 等在内的约 18 个适配器，通过 Gateway 统一接入。
 
 **Gateway服务架构**：独立于Agent核心的网关进程，负责消息路由、协议转换和会话管理。
 
@@ -518,9 +518,9 @@ Hermes Agent走的是"广覆盖"路线（第21章已详述）：
 | 微信 | -- | -- | Gateway适配 |
 | WhatsApp | -- | -- | Gateway适配 |
 | Matrix | -- | -- | Gateway适配 |
-| IRC | -- | -- | Gateway适配 |
+| Signal | -- | -- | Gateway适配 |
 | CI/CD | Headless Worker | -- | systemd/launchd |
-| **总计** | **4+1** | **3** | **14+** |
+| **总计** | **4+1** | **3** | **18+** |
 
 ### 28.7.5 生态策略对比
 
@@ -606,7 +606,7 @@ JiuwenClaw的设计哲学是：**"任务管理即核心价值，平台融合即�
 
 Hermes Agent的设计哲学是：**"从经验中学习是Agent最本质的能力"**。
 
-**自进化为核心差异化**：从MEMORY.md到USER.md到SOUL.md，从15次tool-call反思到skill_manage补丁，从SQLite FTS5到ContextCompressor——Hermes的每一个子系统都在服务于同一个目标：让Agent变得更聪明。
+**自进化为核心差异化**：从 MEMORY.md 到 USER.md 到 SOUL.md，从周期性回顾到 `skill_manage` 补丁，从 SQLite FTS5 到 ContextCompressor——Hermes 的多个子系统都围绕"让 Agent 从经验中变得更稳健"这一目标组织。
 
 **社区驱动**：不依赖特定厂商（Anthropic或华为），支持多个Provider和多个平台。这种中立性吸引了更广泛的社区贡献者，但也意味着没有商业实体的资源投入。
 
@@ -653,9 +653,9 @@ Hermes Agent的设计哲学是：**"从经验中学习是Agent最本质的能力
 
 **单文件架构的可维护性**：`run_agent.py`单文件11,487行在可读性和可维护性上存在隐患。对比OpenHarness的模块化设计，Hermes的核心代码过于集中。
 
-**反思机制的固定阈值**：15次tool-call作为反思触发阈值是硬编码的。不同任务的复杂度差异巨大——简单查询可能3次tool-call就完成，复杂重构可能需要50次。固定阈值无法适应所有场景。
+**反思机制的触发粒度仍较粗**：无论通过 tool-call 数还是后台 nudge 触发，Hermes 当前的回顾机制都偏规则驱动。不同任务复杂度差异巨大，统一阈值很难适配所有场景。
 
-**平台集成的维护负担**：14个消息平台适配器意味着14套独立的协议兼容、14个可能的breakage点。每当某个平台更新API版本，对应适配器都需要同步更新。
+**平台集成的维护负担**：多平台适配意味着多套协议兼容和潜在 breakage 点。每当某个平台更新 API 版本，对应适配器都需要同步维护。
 
 ### 28.9.4 整体生态的碎片化问题
 
@@ -682,7 +682,7 @@ Hermes Agent的设计哲学是：**"从经验中学习是Agent最本质的能力
 | 测试债务 | 低（学术项目重视可复现） | 高（早期阶段） | 中 |
 | 文档债务 | 低（Release Notes完整） | 高（文档较少） | 中 |
 | 依赖债务 | 高（Anthropic生态强依赖） | 高（华为生态强依赖） | 低（多Provider无锁定） |
-| 兼容性债务 | 中（Claude Code版本追随） | 低（自控节奏） | 中（14平台维护） |
+| 兼容性债务 | 中（Claude Code版本追随） | 低（自控节奏） | 中（多平台维护） |
 
 OpenHarness的架构债务最低但依赖债务最高；Hermes的依赖债务最低但架构债务最高——这种对称性恰好反映了"精致的框架 vs 灵活的实现"的权衡。
 
