@@ -1,0 +1,10 @@
+{
+  "name": "hermes-agent-study",
+  "private": true,
+  "scripts": {
+    "validate:mermaid": "node devtools/validate-mermaid.mjs ."
+  },
+  "devDependencies": {
+    "mermaid": "^11.6.0"
+  }
+}
