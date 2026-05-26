@@ -221,3 +221,56 @@ Hermes的技能系统最大的创新在于**Agent可以自主创建和改进技�
 3. **技能间依赖未建模**：技能A可能依赖技能B的存在（如"先安装docker技能，再使用k8s部署技能"），但当前格式不支持声明依赖关系。
 4. **Hub生态尚在起步**：Skills Hub的源适配器当前主要支持GitHub，缺乏类似npm registry的中心化索引和版本解析。
 5. **审计日志不完整**：`.hub/`目录下的审计日志记录安装事件，但不记录技能的使用频次和效果，无法为技能推荐提供数据支持。
+
+---
+
+## 升级补遗（v0.10 → v0.14）
+
+> 原章节"遗留问题"的 5 条里，有 3 条在本窗口内部分被回应。详见 § 升级补遗逐条对照。
+
+### 1. Curator 作为后台维护层（v0.12）
+
+原章节"审计日志不完整"被部分回应：
+
+- **`bump_use()` 接入 skill 调用 + preload + skill_view**（v0.12，[#17932](https://github.com/NousResearch/hermes-agent/pull/17932)）：技能使用频次现在落到 `last_used_at`、`use_count` 等字段
+- **`hermes curator status`**（v0.12，[#18033](https://github.com/NousResearch/hermes-agent/pull/18033)）：按使用频次给 skill 排序，输出 most-used / least-used
+- **Curator 周期性整理**（v0.12，[#17277](https://github.com/NousResearch/hermes-agent/pull/17277)）：默认 7 天一轮，评分、合并、剪枝；产出 `logs/curator/REPORT.md`
+- **`hermes curator archive` / `prune` / `list-archived`**（v0.13）
+
+Curator 详细机制见第 10 章升级补遗与专题文章 § 2.3。
+
+### 2. 安装与发现的新形态
+
+- **`hermes skills install <url>`** 直接从 HTTP(S) URL 装（v0.12，[#16323](https://github.com/NousResearch/hermes-agent/pull/16323)）
+- **`/reload-skills` 斜杠命令**（v0.12，[#17744](https://github.com/NousResearch/hermes-agent/pull/17744)）
+- **`hermes skills list` 显示启停状态**（v0.12，[#16129](https://github.com/NousResearch/hermes-agent/pull/16129)）
+- **`huggingface/skills` 作为默认 trusted tap**（v0.14，[#26219](https://github.com/NousResearch/hermes-agent/pull/26219)）：原章节"Hub 生态尚在起步"被部分回应；社区可以把 skill 发布到 `huggingface.co/skills`，本地默认能浏览到
+- **`/sessions` 与 `Skills` 在 dashboard 左侧栏 per-skill 页**（v0.14，[#26646](https://github.com/NousResearch/hermes-agent/pull/26646)）
+
+### 3. Skill 写入的边界控制
+
+- **`skill_manage` 拒绝改写 pinned skill**（v0.12，[#17562](https://github.com/NousResearch/hermes-agent/pull/17562)）
+- **`skill_manage` 可编辑 `external_dirs` skill 在原地写**（v0.12，[#17512](https://github.com/NousResearch/hermes-agent/pull/17512)）
+- **Curator 不动 bundled / hub skill**（v0.13 多个 fix）
+
+### 4. Plugin 命名空间化的 skill 注册（v0.11）
+
+- `register_command()` + namespaced skill registration（[#9786](https://github.com/NousResearch/hermes-agent/pull/9786)）：插件 bundle 可以注册自己命名空间下的 skill，不污染顶层 index
+- Bundled skill 脚本默认 runnable（v0.12，[#13384](https://github.com/NousResearch/hermes-agent/pull/13384)）
+
+### 5. 新增 / 重排 / 升级的 skill
+
+新加（节选，完整列表见 release notes）：
+
+- **v0.11**：concept-diagrams、architecture-diagram、pixel-art、baoyu-comic、baoyu-infographic、page-agent、fitness-nutrition、drug-discovery、touchdesigner-mcp、adversarial-ux-test、llm-wiki
+- **v0.12**：ComfyUI v5（从 optional 升级到 built-in）、TouchDesigner-MCP（bundled 默认）、Humanizer、claude-design、design-md、airtable、pretext、spike + sketch
+- **v0.13**：Shopify（Admin + Storefront）、here.now、shop-app、Anthropic financial-services、kanban-video-orchestrator、searxng-search
+- **v0.14**：Hyperliquid、Yahoo Finance、api-testing、unified EVM multi-chain、darwinian-evolver、osint-investigation、pinggy-tunnel、watchers（RSS / HTTP JSON / GitHub via cron no_agent）、Notion overhaul
+
+可选 skill 子目录从 14 → 82。
+
+### 6. 仍未解决的项
+
+- **缺乏版本管理 / changelog / 回滚**：原章节问题 1 没有正面回应。Curator 给了一定的 use 计数与归档，但没有 changelog
+- **搜索能力**：原章节问题 2 未根本解决，仍是 name + description（FTS5 的 trigram 改造主要落在会话搜索，不直接覆盖 skill 文本）
+- **技能依赖未建模**：原章节问题 3 未变

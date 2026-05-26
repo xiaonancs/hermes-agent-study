@@ -173,3 +173,78 @@ Hermes的委托设计明显更轻量——它是一个工具，不是一个框�
 2. **无崩溃恢复**：子Agent如果因API错误中途失败，整个任务标记为失败。没有检查点（checkpoint）机制让子Agent从中间状态恢复。
 3. **深度限制硬编码**：`MAX_DEPTH=3`是代码常量而非配置项，在某些需要深层委托的场景（如递归分析大型代码库）中可能不够。
 4. **缺乏智能路由**：Issue #344提出了多智能体架构路线图，包括基于任务类型自动选择最优模型、动态工具集推荐等，但尚未实现。当前的模型选择完全依赖父Agent在`delegate_task`调用时的显式指定。
+
+---
+
+## 升级补遗（v0.10 → v0.14）：从"`delegate_task`"到"Orchestrator + Kanban"
+
+> 本章是 v0.13 改写最深的一章——子 Agent 形态从"单一 `delegate_task`"扩展为"orchestrator 角色 + Kanban 多 worker 协作板"。
+
+### 1. Orchestrator role + spawn 深度可配（v0.11）
+
+[#13691](https://github.com/NousResearch/hermes-agent/pull/13691)：
+
+- 子 Agent 现在有显式的 `orchestrator` 角色，可以再 spawn 自己的 worker
+- `max_spawn_depth` 默认 flat（即默认禁止递归 spawn）但可配
+- 直接回应原章节问题 3 "MAX_DEPTH=3 硬编码"——现在是配置项
+
+### 2. 跨子 Agent 文件状态协调（v0.11）
+
+[#13718](https://github.com/NousResearch/hermes-agent/pull/13718)：
+
+- 并发的兄弟子 Agent 通过文件协调层共享文件系统状态
+- 避免多个子 Agent 同时改同一个文件导致写覆盖
+
+部分回应原章节问题 1 "无 Agent 间通信"——虽然没有直接 IPC，但文件层有协调机制了。
+
+### 3. Kanban：多 profile 持久协作板（v0.13）
+
+整个 Kanban 子系统是新的：
+
+```
+hermes_cli/kanban.py            # CLI 入口（2,762 行）
+hermes_cli/kanban_db.py          # 存储
+hermes_cli/kanban_decompose.py   # 任务拆解
+hermes_cli/kanban_specify.py     # 任务细化（v0.14 用 aux LLM）
+hermes_cli/kanban_swarm.py       # 多 worker 调度
+hermes_cli/kanban_diagnostics.py # 卡板诊断
+tools/kanban_tools.py            # Agent 端工具
+plugins/kanban/                   # 仪表板插件
+```
+
+可靠性设计（在 release notes 中明确出现）：
+
+- 心跳 + reclaim + zombie 检测 + 重试预算
+- 幻觉网关与恢复 UX
+- 失败列名稳定（避免重命名敏感）
+- 卡片作者注入防护
+- v0.14 加 `kanban_list` / `kanban_unblock` 给 orchestrator
+
+与原章节"`delegate_task` 子 Agent" 的关系：
+
+- `delegate_task` 仍然是"父 Agent 在自己的一次 turn 内分派一个或多个子 Agent"
+- Kanban 是"持久看板 + 跨 profile worker 长跑协作"，更接近"项目管理"
+- 两者并存，没有相互替代
+
+### 4. `/handoff` 接管（v0.14）
+
+虽然不是"子 Agent"，但同属于"会话转移"系列：
+
+- **`/handoff <target>`**（[#23395](https://github.com/NousResearch/hermes-agent/pull/23395)）：把整个 active session（消息 / 工具调用 / 上下文）实时迁移到目标 model / persona / profile
+- 与 `delegate_task` 的区别：`delegate_task` 派一个子 Agent；`/handoff` 是父 Agent 自己换皮接管
+
+### 5. delegate 路径上的补丁
+
+- **Delegate `child_timeout_seconds` 默认 600s**（v0.12，[#14809](https://github.com/NousResearch/hermes-agent/pull/14809)）
+- **诊断 dump when subagent times out with 0 API calls**（v0.12，[#15105](https://github.com/NousResearch/hermes-agent/pull/15105)）
+- **Inherit parent fallback_chain in `_build_child_agent`**（v0.13，[#19601](https://github.com/NousResearch/hermes-agent/pull/19601)）
+- **Guard `_load_config()` against `delegation: null` in config.yaml**（v0.13，[#19662](https://github.com/NousResearch/hermes-agent/pull/19662)）
+- **Inherit parent api_key when `delegation.base_url` set without `delegation.api_key`**（v0.13，[#19741](https://github.com/NousResearch/hermes-agent/pull/19741)）
+- **Expand composite toolsets before intersection**（v0.13，[#21300](https://github.com/NousResearch/hermes-agent/pull/21300)）
+- **Delegate tool: show user's actual concurrency / spawn-depth limits in description**（v0.14，[#22694](https://github.com/NousResearch/hermes-agent/pull/22694)）
+- **Subagent spawn 可观测覆盖层** (v0.11 TUI feature, @OutThisLife [#14045](https://github.com/NousResearch/hermes-agent/pull/14045))
+
+### 6. 仍未解决
+
+- **崩溃恢复**：原章节问题 2 在 `delegate_task` 路径上未根治；但 Kanban 通过 reclaim / 重试预算 / 僵尸检测在另一条路径上给了等效能力
+- **智能路由**：原章节问题 4 未实现，但 OpenRouter Pareto Code router (v0.14) 是邻近方向的进展

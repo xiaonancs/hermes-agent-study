@@ -283,3 +283,70 @@ if self._interrupt_requested:
 3. **全局变量问题**。`model_tools.py` 中的 `_last_resolved_tool_names` 和 `_tool_loop` 是进程全局变量。虽然有线程级保护，但在子代理场景下仍可能产生微妙的竞态。
 
 4. **同步设计的瓶颈**。在 Gateway 模式下，每个用户消息创建一个新的 AIAgent 实例在同一线程上同步执行。高并发场景（如繁忙的 Telegram 群）需要依赖 Gateway 层的异步调度和线程池来获得吞吐量，Agent 本身无法利用 asyncio 的协作式并发优势。
+
+---
+
+## 升级补遗（v0.10 → v0.14）：Transport ABC 与 `run_agent.py` 的瘦身
+
+> 本节回应原章节 §3.14 第 2 条"四种 API 模式的条件分支"和第 1 条"方法长度"——v0.11 已经下了一刀。
+
+### `run_agent.py` 从 11,487 行瘦到 4,410 行
+
+v0.11 启动 Transport ABC 重构（[#13347](https://github.com/NousResearch/hermes-agent/pull/13347) 起的一组 PR），把"格式转换 + HTTP 传输"从 `run_agent.py` 抽出到新目录：
+
+```
+agent/transports/
+├── base.py                    # ABC + 公共类型
+├── types.py
+├── chat_completions.py        # OpenAI Chat Completions 默认形态
+├── anthropic.py                # Anthropic Messages 形态
+├── codex.py                    # OpenAI Responses / Codex 形态
+├── codex_app_server.py         # （v0.14）Codex CLI 作为执行后端
+├── codex_app_server_session.py
+├── codex_event_projector.py
+├── bedrock.py                  # AWS Bedrock Converse 形态
+└── hermes_tools_mcp_server.py  # Hermes 工具的 MCP 服务端
+```
+
+直接结果：
+
+- `run_agent.py` 行数：11,487 → 4,410（**-61.6%**）
+- `_build_api_kwargs()` / `_interruptible_api_call()` / 响应解析等"四种 API 模式条件分支"全部下沉到对应 Transport
+- 新增第五种 API 形态（v0.11 的 BedrockTransport）只需要新建一个文件、实现 ABC，不再侵入主循环
+
+新形态的子循环大致是：
+
+```
+AIAgent.__init__()                  # 仍在 run_agent.py
+  └─ self.transport = resolve_transport(provider)   # 工厂选 Transport 类
+run_conversation()                  # 仍在 run_agent.py（瘦身后）
+  ├─ build prompt + tools (PromptBuilder)
+  ├─ self.transport.send(messages, tools, ...)      # 由具体 Transport 实现
+  │    ├─ AnthropicTransport.send  → /messages
+  │    ├─ ChatCompletionsTransport.send → /v1/chat/completions
+  │    ├─ ResponsesApiTransport.send → /v1/responses 或 Codex
+  │    └─ BedrockTransport.send → Bedrock Converse
+  └─ handle_function_call(tool_call) → ModelTools
+```
+
+### 实战意义
+
+1. **认知负荷下降**：原章节列出的"四种 API 模式条件分支"问题被部分解决（Strategy 模式上岸）
+2. **第五种形态成本变低**：v0.14 的 Codex app-server runtime（`codex_app_server.py` + `codex_app_server_session.py` + `codex_event_projector.py`）能以"另一种 Transport 形态"快速接入
+3. **测试可观测性增强**：每个 Transport 可以独立测试，`tests/agent/transports/` 与 `tests/providers/test_transport_parity.py` 已经形成
+
+### 其它会话循环相关的小调整
+
+- **`/steer <text>`**（v0.11）：在 tool call 间隙注入提示，不打断 turn、不破缓存（[#12116](https://github.com/NousResearch/hermes-agent/pull/12116)）
+- **Activity heartbeats**（v0.11）：抑制 gateway 错误判定"会话死掉"（[#10501](https://github.com/NousResearch/hermes-agent/pull/10501)）
+- **Compressor anti-thrash + smart collapse + dedup**（v0.11，[#10088](https://github.com/NousResearch/hermes-agent/pull/10088)）
+- **Compression model fall back to main model on permanent 503/404**（v0.11，[#10093](https://github.com/NousResearch/hermes-agent/pull/10093)）
+- **Auto-continue interrupted agent work after gateway restart**（v0.11，[#9934](https://github.com/NousResearch/hermes-agent/pull/9934)）
+- **Warning-first tool-call loop guardrails**（v0.13，[#18227](https://github.com/NousResearch/hermes-agent/pull/18227)）
+- **Break permanent empty-response loop from orphan tool-tail**（v0.13，[#21385](https://github.com/NousResearch/hermes-agent/pull/21385)）
+- **Propagate ContextVars to concurrent tool worker threads**（v0.13，[#18123](https://github.com/NousResearch/hermes-agent/pull/18123)）
+- **`get_tool_definitions` quiet_mode cache isolation + dedup LCM injection**（v0.13，[#17889](https://github.com/NousResearch/hermes-agent/pull/17889)）
+
+### 现在尚未解决的部分
+
+原章节 §3.14 第 3 条（model_tools 全局变量）、第 4 条（同步设计的瓶颈）、第 1 条（`run_conversation` 仍是主循环，瘦身后约 1,500-2,000 行）仍未根治；这是 v0.14 之后仍开放的工程问题。

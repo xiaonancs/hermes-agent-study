@@ -3,8 +3,9 @@
 ![Hermes Agent Study Banner](Appendix/cover-banner.png)
 
 覆盖 5 个关键项目：Hermes Agent、OpenClaw、EvoMap Evolver、OpenHarness、JiuwenClaw。
-<br>38 篇文章 / 32 章正文 / 97 张架构图 / 11,000+ 行研究文本。
+<br>39 篇文章 / 32 章正文 + 1 篇升级专题 / 97 张架构图 / 13,000+ 行研究文本。
 
+> **2026-05 更新**：本研究原以 Hermes Agent v0.9.0（2026-04-13）为基线。v0.9 之后，Hermes 已经连续发布 v0.10 → v0.14 共五个版本（30 天内 ~4,500 commits，~735k 行新增），引入了 Transport ABC、Ink TUI、自治型 Curator、多 Agent Kanban、`/goal` Ralph 循环、PyPI 包、原生 Windows 等大题目。这些变化的总览见专题文章 [近期重大升级 — v0.10 到 v0.14](近期重大升级-v0.10到v0.14.md)；具体落到各章的影响通过每章末尾的"升级补遗"小节同步。
 
 ## 引言
 
@@ -24,12 +25,13 @@ Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k St
 
 ## 研究结构
 
-### 总纲
+### 总纲与专题
 
 | 文档 | 内容 |
 |------|------|
 | [总纲 — Hermes Agent 技术主线分析](总纲-Hermes-Agent技术主线分析.md) | 核心机制、火爆原因、设计哲学、架构全貌 |
 | [全网调研 — 社区认知地图](全网调研-社区认知地图.md) | 中英文社区技术分析索引、观点争议、认知盲区 |
+| [近期重大升级 — v0.10 到 v0.14](近期重大升级-v0.10到v0.14.md) | 30 天内 5 个版本的体系级变更（Transport ABC、Curator、Kanban、`/goal`、22 个平台、PyPI、原生 Windows） |
 
 ### Part I 使用方法与原理分析（11 章）
 
@@ -90,22 +92,25 @@ Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k St
 
 ## 源码基线
 
-| 项目 | 版本 | 语言 | Stars |
-|------|------|------|-------|
-| Hermes Agent | v0.9.0 (main, April 2026) | Python | 90,209 |
-| OpenClaw | latest (April 2026) | TypeScript | 358,225 |
-| EvoMap Evolver | latest (April 2026) | Node.js | 2,512 |
-| OpenHarness | v0.1.6 (April 2026) | Python | 9,884 |
-| JiuwenClaw | latest (April 2026) | Python | 398 |
+| 项目 | 主线研究基线版本 | 升级追加版本 | 语言 | Stars |
+|------|------------------|---------------|------|-------|
+| Hermes Agent | v0.9.0（2026-04-13） | v0.14.0（2026-05-16，main HEAD 2026-05-25） | Python | 90,209+ |
+| OpenClaw | latest (April 2026) | — | TypeScript | 358,225 |
+| EvoMap Evolver | latest (April 2026) | — | Node.js | 2,512 |
+| OpenHarness | v0.1.6 (April 2026) | — | Python | 9,884 |
+| JiuwenClaw | latest (April 2026) | — | Python | 398 |
+
+> v0.9.0 → v0.14.0 的源码规模：Python 文件 886 → 1,898（+114%）；Python 行数 411k → 912k（+122%）；消息平台 18 → 22；可选 Skill 子目录 14 → 82。
 
 ## 怎么读
 
 - **快速了解**：读总纲，15 分钟掌握全貌
+- **看近期升级**：读 [近期重大升级 — v0.10 到 v0.14](近期重大升级-v0.10到v0.14.md)，理解 v0.9 之后的体系级变化（Transport ABC、Curator、Kanban、`/goal`、PyPI、原生 Windows 等）
 - **快速上手**：Part I 第 3-4 章，从安装到高级用法
 - **研究型用法**：Part I 第 4 章先看高级场景定位与 `autoresearch` 延展，再接 Part II 第 25 章理解 Batch / RL 路径
 - **自动研究工作流**：先读 Part I 第 4 章的 `autoresearch` 小节，再按需要跳到 Part II 第 20 章 `定时任务` 和第 25 章 `RL 与训练环境`
 - **理解设计**：Part I 从头读，掌握"为什么这么做"
-- **看实现**：Part II 按需跳转，追踪代码路径
+- **看实现**：Part II 按需跳转，追踪代码路径；变化大的章节末尾有"升级补遗"小节
 - **看争议**：直接读 Part III
 
 ## 许可

@@ -198,3 +198,85 @@ Hermes 的 provider 系统在本研究比较范围内属于覆盖面很广的一
 **Bedrock 的双路径复杂度。** Bedrock 同时支持 Anthropic SDK 路径（Claude 模型）和 Converse API 路径（其他模型），由 `is_anthropic_bedrock_model` 在运行时决定。这意味着同一个 `provider="bedrock"` 可能返回 `api_mode="anthropic_messages"` 或 `api_mode="bedrock_converse"`，增加了下游代码的分支复杂度。
 
 **自动 provider 检测的误判。** `detect_provider_for_model` 在用户输入裸模型名时尝试自动匹配 provider，但当同名模型存在于多个 provider 目录（如 `kimi-k2.5` 同时在 kimi-coding、moonshot、opencode-zen 中）时，返回的是第一个遍历命中的，而非最优的。
+
+---
+
+## 升级补遗（v0.10 → v0.14）：Transport ABC、Pluggable Provider 与 OpenAI 兼容代理
+
+### 1. API 模式从"运行时分支"变成"Transport 类"（v0.11）
+
+原章节描述的"四种 API 模式"（chat_completions / codex_responses / anthropic_messages / bedrock_converse）现在以 Transport 类的形式存在于 `agent/transports/`：
+
+| 模式 | Transport 类 | 文件 |
+|------|--------------|------|
+| chat_completions | ChatCompletionsTransport | `agent/transports/chat_completions.py` |
+| anthropic_messages | AnthropicTransport | `agent/transports/anthropic.py` |
+| codex_responses（含 Codex CLI） | ResponsesApiTransport / Codex variants | `agent/transports/codex.py`, `codex_app_server.py` |
+| bedrock_converse | BedrockTransport | `agent/transports/bedrock.py` |
+
+原章节 §"auth.py 的单文件膨胀"虽然仍存在，但 API 模式分支的拆解已经显著落地。
+
+### 2. Pluggable Provider（v0.13）
+
+`ProviderProfile` ABC 出现后，provider 不再必须改主仓库：
+
+- 新目录：`plugins/model-providers/`
+- 截至 v0.14 已托管 28 个 provider 配置：ai-gateway、alibaba、alibaba-coding-plan、anthropic、arcee、azure-foundry、bedrock、copilot、copilot-acp、custom、deepseek、gemini、gmi、huggingface、kilocode、kimi-coding、minimax、nous、novita、nvidia、ollama-cloud、openai-codex、opencode-zen、openrouter、qwen-oauth、stepfun、xai、xiaomi、zai
+- 入选机制 `list_picker_providers`（v0.13）：按可用凭证过滤
+
+### 3. 新 Provider 大批入列（v0.11 → v0.14）
+
+| Provider | 版本 | 备注 |
+|---------|------|------|
+| AWS Bedrock | v0.11 | 原生 Converse API，是 Transport ABC 的第一个验证案例 |
+| NVIDIA NIM | v0.11 | 含计费 origin header |
+| Arcee AI | v0.11 | 直连 |
+| Step Plan | v0.11 | |
+| Google Gemini CLI OAuth | v0.11 | OAuth 路径 |
+| Vercel ai-gateway | v0.11 | 含定价 + 动态发现 |
+| GMI Cloud | v0.12 | 一等公民 |
+| Azure AI Foundry | v0.12 | 自动检测 |
+| LM Studio | v0.12 | 从"自定义 endpoint 别名"升级为一等 provider |
+| MiniMax OAuth | v0.12 | PKCE 浏览器流程 |
+| Tencent Tokenhub | v0.12 | |
+| NovitaAI | v0.14 | 开源模型托管 |
+| xAI Grok SuperGrok OAuth | v0.14 | grok-4.3 → 1M 上下文窗口 |
+
+Provider 改名：v0.14 把 Alibaba Cloud 改名为 Qwen Cloud（picker 与 config 中），既有配置仍兼容。
+
+模型目录改动（影响原章节"静态模型目录的维护负担"）：
+
+- **远端模型目录清单**（v0.12）：OpenRouter + Nous Portal 的 catalog 从远端 manifest 拉，新模型不需要发版
+- **`/model` 合并 models.dev 条目**（v0.11）：覆盖冷门 provider
+- **GPT-5.5 通过 Codex OAuth**（v0.11）：picker 内嵌活模型发现
+
+### 4. OpenAI 兼容代理：把 Hermes 反向变成 OAuth 中继器（v0.14）
+
+`hermes proxy` 起一个 `http://localhost:<port>` 端点，对外讲 OpenAI API，对内由任意已 OAuth 登录的 Hermes provider（Claude Pro / ChatGPT Pro / SuperGrok）承担：
+
+- 入口：`hermes_cli/proxy/cli.py` + `hermes_cli/proxy/server.py` + `hermes_cli/proxy/adapters/`
+- 用途：Codex CLI / Aider / Cline / Continue 等期望 OpenAI 兼容端点的工具直接借住 Hermes 的订阅
+
+意义：原章节"为什么会火爆"层面的"OpenClaw 用户迁移"之外，多了一条"任意 OpenAI 兼容客户端 → Hermes → 任意 OAuth"的杠杆。
+
+### 5. 智能路由与缓存
+
+- **OpenRouter Pareto Code router**（v0.14）：`min_coding_score` 控制下限，路由器在满足质量分时挑最便宜的
+- **OpenRouter 响应缓存**（v0.13）：显式 cache control
+- **跨会话 1h Claude prompt cache**（v0.14）：Anthropic / OpenRouter / Nous Portal 三条 Claude 路径都开。背景 review fork 也接进缓存，避免每轮按全量计费
+- **Per-provider + per-model `request_timeout_seconds`**（v0.11）
+- **Configurable `agent.api_max_retries`**（v0.11）
+
+### 6. Codex app-server runtime（v0.14）
+
+新增的可选 runtime（`agent/transports/codex_app_server*.py`），把 OpenAI Codex CLI 当作执行后端使用：
+
+- 会话复用
+- 自动退役卡死会话
+- post-tool watchdog
+- OAuth refresh 分类（区分"是真的过期了"vs"瞬时网络问题"）
+
+### 7. 辅助模型路由的"主模型优先"（v0.11）
+
+- `auxiliary auto routing defaults to main model for all users`：原章节描述的"辅助任务可能被悄悄下放给低成本 provider"被推翻；新默认值是"用主模型完成压缩 / 标题生成 / 视觉 / 会话搜索"，除非用户显式覆盖
+- `hermes model` 多了一屏专门配置 auxiliary models

@@ -2,6 +2,11 @@ study:
   title: "Hermes Agent 深度研究"
   subtitle: "从机制本质到代码实现，从 OpenClaw 渊源到 EvoMap 争议"
   source_baseline: "hermes-agent v0.9.0 (commit main, April 2026)"
+  upgrade_addendum_baseline: "hermes-agent v0.14.0 (main HEAD 2517917de, 2026-05-25)"
+  upgrade_addendum_note: |
+    自 2026-04-13 v0.9.0 之后，hermes-agent 已连续发布 v0.10.0 / v0.11.0 / v0.12.0 / v0.13.0 / v0.14.0
+    五个版本（约 4,500 commits、735k+ 行新增、800+ 社区贡献者）。
+    各章末尾增加“升级补遗”小节同步关键变化；专题文章见 近期重大升级-v0.10到v0.14.md。
   comparison_projects:
     - name: OpenClaw
       repo: https://github.com/openclaw/openclaw
@@ -26,6 +31,12 @@ overview:
     title: 全网调研与社区认知地图
     filename: 全网调研-社区认知地图.md
     one_liner: 中英文社区技术分析索引、争议矩阵、盲区分析
+
+  - id: recent-upgrades
+    title: 近期重大升级 — v0.10 到 v0.14
+    filename: 近期重大升级-v0.10到v0.14.md
+    one_liner: 30 天 5 个版本的体系级变更总览（Transport ABC、Curator、Kanban、`/goal`、22 个平台、PyPI、原生 Windows）
+    addendum: true
 
 part_1_principles_and_usage:
   - id: ch01

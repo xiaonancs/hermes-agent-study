@@ -63,7 +63,16 @@
 37. **Hermes Agent v0.3.0 ~ v0.9.0** — 2026-03 ~ 2026-04, 持续迭代
 38. **Evolver v1.37.0** — 2026-03-22, dual-loop evolution + failure-learning pipeline
 
+## 升级补遗——v0.10 ~ v0.14 release notes
+
+39. **Hermes Agent v0.10.0 (v2026.4.16)** — Nous Tool Gateway 发布。RELEASE_v0.10.0.md
+40. **Hermes Agent v0.11.0 (v2026.4.23)** — The Interface release：Ink TUI + Transport ABC + QQBot (17th)。RELEASE_v0.11.0.md
+41. **Hermes Agent v0.12.0 (v2026.4.30)** — The Curator release：自治后台 + Teams (19th) + Yuanbao (18th) + ~57% 冷启动削减。RELEASE_v0.12.0.md
+42. **Hermes Agent v0.13.0 (v2026.5.7)** — The Tenacity release：多 Agent Kanban + `/goal` Ralph 循环 + Checkpoints v2 + 8 P0 安全闭合 + Google Chat (20th)。RELEASE_v0.13.0.md
+43. **Hermes Agent v0.14.0 (v2026.5.16)** — The Foundation release：PyPI 安装 + OpenAI 兼容代理 + LINE (21st) + SimpleX (22nd) + 原生 Windows beta + 12 P0 闭合。RELEASE_v0.14.0.md
+44. **近期重大升级 — v0.10 到 v0.14** — 本研究升级专题：覆盖 5 个版本的体系级变更、对原研究 32 章的影响矩阵、悬而未决问题。
+
 ## 迁移工具
 
-39. **openclaw-to-hermes** — https://github.com/0xNyk/openclaw-to-hermes
-40. **hermes claw migrate** — Hermes 内置迁移命令
+45. **openclaw-to-hermes** — https://github.com/0xNyk/openclaw-to-hermes
+46. **hermes claw migrate** — Hermes 内置迁移命令

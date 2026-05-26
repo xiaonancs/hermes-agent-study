@@ -164,3 +164,44 @@ Hermes 的 MCP 实现属于当前开源 Agent 中完成度较高的一类，尤�
 2. **重连策略较粗糙**：初始连接最多3次重试，运行中断线最多5次重试，但没有circuit breaker模式——一个持续失败的服务器会反复尝试。
 3. **Sampling安全边界模糊**：MCP服务器可以通过Sampling请求LLM执行任意提示，当前仅依赖`max_rpm`和`max_tool_rounds`控制，缺少对Sampling提示内容的安全审计。
 4. **HTTP传输的OAuth刷新竞态**：`_refresh_lock`保护工具刷新，但OAuth token过期时的刷新由httpx.Auth层处理，可能与并发工具调用产生竞态。
+
+---
+
+## 升级补遗（v0.10 → v0.14）
+
+### 1. SSE 传输 + OAuth 转发（v0.13）
+
+- **SSE transport support**（[#21227](https://github.com/NousResearch/hermes-agent/pull/21227)）：除了 stdio + HTTP，新增 SSE 通道
+- **Forward OAuth auth + bump `sse_read_timeout` on SSE transport**（[#21323](https://github.com/NousResearch/hermes-agent/pull/21323)）
+- **Periodic keepalive to `_wait_for_lifecycle_event`**（[#20209](https://github.com/NousResearch/hermes-agent/pull/20209)）：长时间空闲的生命周期等待不再被中间设备掐断
+
+### 2. MCP OAuth 安全（v0.13 P0）
+
+- **MCP OAuth — close TOCTOU window when saving credentials**（v0.13，[#21176](https://github.com/NousResearch/hermes-agent/pull/21176)）：原章节问题 4 部分回应（凭证保存层 TOCTOU 已闭合，但工具刷新与并发调用的竞态仍存在）
+
+### 3. 工具调用与错误处理
+
+- **Retry stale pipe transport failures as session-expired**（v0.13，[#21289](https://github.com/NousResearch/hermes-agent/pull/21289)）：原章节问题 2 部分回应——把 stale pipe 错误识别为"会话过期"再重连
+- **Surface image tool results as MEDIA tags instead of dropping them**（v0.13，[#21328](https://github.com/NousResearch/hermes-agent/pull/21328)）
+- **Reconnect on terminated sessions**（v0.13，[#19380](https://github.com/NousResearch/hermes-agent/pull/19380)）
+- **`supports_parallel_tool_calls` for MCP servers**（v0.14，[#26825](https://github.com/NousResearch/hermes-agent/pull/26825)）
+- **Codex preset for Codex CLI MCP server**（v0.14，[#22679](https://github.com/NousResearch/hermes-agent/pull/22679)）
+- **Stop retrying initial MCP auth failures**（v0.14，[#25776](https://github.com/NousResearch/hermes-agent/pull/25776)）
+
+### 4. mcp_serve.py 端的硬化
+
+- **Coerce numeric tool args defensively in `mcp_serve`**（v0.13，[#21329](https://github.com/NousResearch/hermes-agent/pull/21329)）
+- **Re-raise CancelledError explicitly in `MCPServerTask.run`**（v0.13，[#21318](https://github.com/NousResearch/hermes-agent/pull/21318)）
+- **Gate utility stubs on server-advertised capabilities**（v0.13，[#21347](https://github.com/NousResearch/hermes-agent/pull/21347)）
+- **MCP servers shipped with v0.14 提供的 Hermes 自身工具 MCP server**：`agent/transports/hermes_tools_mcp_server.py`
+
+### 5. OAuth 设置流程
+
+- **`hermes mcp add` 修复 silently launches chat instead of registering MCP**（v0.13 P0，[#21204](https://github.com/NousResearch/hermes-agent/pull/21204)）
+- **MCP OAuth paste-back / SSH 远程 OAuth 流程**（v0.11，[#8191f663d](https://github.com/NousResearch/hermes-agent/commit/8191f663d) + [#bdf369670](https://github.com/NousResearch/hermes-agent/commit/bdf369670)）
+
+### 6. 仍未解决
+
+- **Resources/Prompts 仍是二等公民**（原章节问题 1 未变）
+- **Sampling 安全审计**（原章节问题 3 未变）
+- **HTTP transport OAuth 刷新与并发工具调用的竞态**（原章节问题 4 未根治，凭证保存的 TOCTOU 已闭合）

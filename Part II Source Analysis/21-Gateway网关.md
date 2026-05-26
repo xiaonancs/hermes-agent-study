@@ -201,3 +201,95 @@ Hermes 的独特优势在于将完整的 LLM Agent（含工具调用、记忆、
 **平台适配器质量不均**。Feishu（3986 行）和 Discord（3165 行）功能完善，但 DingTalk（333 行）和 SMS（373 行）可能只实现了最基本的文本收发，缺少富媒体和群组功能。
 
 **内存泄漏风险**。`_agent_cache` 没有 LRU 淘汰机制，长时间运行的网关会为每个曾经活跃的会话缓存一个 AIAgent 实例。如果有大量不同的一次性会话，内存使用会持续增长。
+
+---
+
+## 升级补遗（v0.10 → v0.14）：22 个平台 + Pluggable Platform Host
+
+> 本章是 v0.10-v0.14 改动量最大的几章之一。Gateway 从"18 个内置平台"变成"22 个平台 + 平台可插拔宿主"。`gateway/run.py` 行数从 9,798 涨到 18,556（+89%）。
+
+### 1. 新平台（v0.11 → v0.14）
+
+| 平台 | 加入版本 | 路径 | 备注 |
+|------|----------|------|------|
+| **QQBot**（17th） | v0.11 | `gateway/platforms/qqbot/` | QQ 官方 API v2，QR 扫码配置，流式光标，DM/group 策略 |
+| **Microsoft Teams**（19th，plugin） | v0.12 | `plugins/platforms/teams/` | 通过 Pluggable Platforms 落地；v0.14 完成端到端（Graph auth + webhook + pipeline + outbound） |
+| **Tencent 元宝**（18th） | v0.12 | `gateway/platforms/yuanbao*.py` | 文本 + 媒体 |
+| **Google Chat**（20th） | v0.13 | `plugins/platforms/google_chat/` | |
+| **LINE**（21st） | v0.14 | `plugins/platforms/line/` | 日韩台主流 IM |
+| **SimpleX Chat**（22nd） | v0.14 | `plugins/platforms/simplex/` | 去中心化隐私 IM |
+
+另有 IRC / mattermost / ntfy / discord 在 v0.12-v0.13 期间迁入 `plugins/platforms/`，作为平台插件化的示范。
+
+### 2. Pluggable Gateway Platform Host（v0.12）
+
+[#17751](https://github.com/NousResearch/hermes-agent/pull/17751) 把 gateway 改造成平台插件宿主，第三方新增 IM 平台不再需要 fork 主仓库：
+
+- 新目录：`plugins/platforms/`
+- 平台 hook：`env_enablement_fn`、`cron_deliver_env_var`、`standalone_sender_fn`、`pre_gateway_dispatch`、`pre_approval_request` / `post_approval_response`、`transform_llm_output`、`hook_ctx.chat_id`
+- 完整文档：`gateway/platforms/ADDING_A_PLATFORM.md` + v0.13 `feat: Microsoft Teams (19th platform) — as a plugin`
+
+意义：把"平台扩张是 Hermes 的核心增长引擎"这一基本判断落地为可插拔架构。社区想接 RCS / Threads / 任意 IM，可以不用动 core。
+
+### 3. 跨平台共享能力（v0.11-v0.14）
+
+| 能力 | 版本 |
+|------|------|
+| Webhook 直发模式（零 LLM 推送） | v0.11 |
+| Per-channel ephemeral prompts (Discord/Telegram/Slack/Mattermost) | v0.11 |
+| Surface plugin slash commands natively on all platforms + decision-capable command hook | v0.11 |
+| Document/archive/PDF in MEDIA: tag extraction | v0.11 |
+| `--all` flag for `gateway start` and `restart` | v0.11 |
+| Notify active sessions on gateway shutdown | v0.11 |
+| Block agent from self-destructing the gateway via terminal | v0.11 |
+| Native multi-image sending（Telegram/Discord/Slack/Mattermost/Email/Signal） | v0.12 |
+| Centralized audio routing + FLAC + Telegram doc fallback | v0.12 |
+| Hygiene hard message limit configurable | v0.12 |
+| Opt-in runtime-metadata footer on final replies | v0.12 |
+| `pre_gateway_dispatch` hook | v0.12 |
+| `pre_approval_request` / `post_approval_response` hooks | v0.12 |
+| `allowed_{channels,chats,rooms}` 跨平台白名单 | v0.13 |
+| Per-platform `gateway_restart_notification` flag | v0.13 |
+| `busy_ack_enabled` config | v0.13 |
+| Auto-delete slash-command system notices after TTL | v0.13 |
+| Opt-in cleanup of temporary progress bubbles | v0.13 |
+| `[[as_document]]` skill 媒体路由指令 | v0.13 |
+| `hermes gateway list` cross-profile status | v0.13 |
+| Auto-resume interrupted sessions after restart | v0.13 |
+| Atomic restart markers + Windows runtime-lock offset | v0.13 |
+| Native `clarify` 按钮（Telegram/Discord） | v0.14 |
+| Discord channel history backfill（default on） | v0.14 |
+| Per-platform admin/user split for slash commands | v0.14 |
+| Per-platform circuit breaker + `/platform` 命令 | v0.14 |
+| `chat_id` 加入 `hook_ctx` | v0.14 |
+
+### 4. 单平台关键升级
+
+**Telegram**：DM user-managed multi-session topics (v0.13)、native draft streaming via `sendMessageDraft` (v0.14)、Telegram notification mode (v0.14)、guest mention mode (v0.14)、split-and-deliver 超大消息 (v0.14)、TELEGRAM_PROXY env var (v0.11)、`ignored_threads` 配置 (v0.11)
+
+**Discord**：forum channel (v0.11)、role-based ACL `DISCORD_ALLOWED_ROLES` (v0.11)、`send_animation` (v0.11)、`/skill` 命令组 (v0.11)、message deletion (v0.13)、`thread_require_mention` (v0.14)、`channel history backfill` (v0.14)、render clarify as buttons (v0.14)
+
+**Feishu**：comment 上 intelligent reply (v0.11)、processing-state via reactions (v0.11)、preserve @mention context (v0.11)、操作员可配 bot admission (v0.13)、强制 markdown 表格转文本 (v0.13)、native update prompt cards (v0.14)
+
+**Slack**：per-thread sessions for DMs by default (v0.11)、register every command as native slash (v0.12)、`strict_mention` (v0.12)、`channel_skill_bindings` (v0.12)、`!cmd` prefix in threads (v0.14)
+
+**WhatsApp**：`send_voice` (v0.11)、`dm_policy` / `group_policy` parity (v0.11)、surface quoted reply metadata from Baileys (v0.14)、**v0.13 P0：default reject strangers**
+
+**DingTalk**：`require_mention` + `allowed_users` (v0.11)、QR-code device-flow setup (v0.11)、AI Cards streaming (v0.11)
+
+**Signal**：media delivery (v0.11)、native formatting (markdown → bodyRanges + reply quotes + reactions) (v0.13)
+
+**QQBot**：native approval keyboards + chunked upload + quoted attachments (v0.13)
+
+### 5. 网关核心代码层级
+
+- `gateway/run.py`：9,798 → 18,556 行（+89%）
+- `gateway/platforms/` 含 17 个核心适配器（除 helpers / base / api_server 外）
+- `plugins/platforms/` 截至 v0.14 含 8 个插件平台
+- **总实际消息平台数：22**（与 v0.14 release notes 一致）
+
+### 6. 与原章节遗留问题的对照
+
+- **"水平扩展缺失"**（原章节问题）：仍未根治。v0.13-v0.14 在 `--replace` / `--all` / restart 健壮性、`per-platform circuit breaker`、`/platform` 命令上做了大量稳定性工作，但没有触及"多 GatewayRunner 实例 + 会话亲和性"这条主线
+- **"平台适配器质量不均"**：DingTalk + Signal + WeCom 经历了 v0.11-v0.13 的批量补丁，已经离"基本文本收发"更远
+- **"内存泄漏风险"**：v0.12 [#17008](https://github.com/NousResearch/hermes-agent/pull/17008) 引入 "Gateway busts cached agent on compression/context_length config edits"，但 `_agent_cache` 仍无 LRU 淘汰

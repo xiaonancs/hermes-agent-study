@@ -245,3 +245,47 @@ Hermes ACP 的独特优势在于它不是一个简单的 LLM 补全服务，而�
 **认证简化**。`auth.py`（24 行）仅检测当前 LLM 提供商是否配置，不做真正的用户身份验证。在共享机器上，任何能连接到 ACP stdio 的进程都能使用 Hermes Agent。
 
 **无并行 Agent 调度**。当前每个会话依次处理消息。如果用户在一个会话中快速发送多条消息，后续消息必须等待前一条完成。没有 Gateway 那样的 interrupt + queue 机制。
+
+---
+
+## 升级补遗（v0.10 → v0.14）
+
+### 1. Zed ACP Registry 集成（v0.14）
+
+[#26079](https://github.com/NousResearch/hermes-agent/pull/26079) + [#26120](https://github.com/NousResearch/hermes-agent/pull/26120) + [#26234](https://github.com/NousResearch/hermes-agent/pull/26234)：
+
+- Hermes 进入 Zed 的 Agent Client Protocol Registry，Zed 用户一键安装
+- 安装路径走 `uvx`，不依赖 npm
+- `hermes acp --setup-browser` bootstraps browser tools for registry-driven installs
+
+### 2. `/steer` 与 `/queue` 进入 ACP（v0.13，@HenkDz）
+
+[#18114](https://github.com/NousResearch/hermes-agent/pull/18114)：
+
+- 在 Zed / VS Code / JetBrains 里直接 `/steer` 或 `/queue` 干预 in-flight agent
+- 修复：`/steer` 在 idle session 上当普通 prompt 跑（v0.13，[#18258](https://github.com/NousResearch/hermes-agent/pull/18258)）
+
+部分回应原章节问题 3 "无并行 Agent 调度"——`/queue` 给出了"队列后续消息"的入口。
+
+### 3. 会话持久化原子化（v0.13）
+
+- **Atomic session persistence via `replace_messages`**（[#20279](https://github.com/NousResearch/hermes-agent/pull/20279)）：解决"半写入"问题
+- **Preserve assistant reasoning metadata in session persistence**（[#20296](https://github.com/NousResearch/hermes-agent/pull/20296)）：reasoning 元数据跨重启保留
+
+### 4. 文件附件与图像
+
+- **Inline file attachment resources**（v0.14，[#21407](https://github.com/NousResearch/hermes-agent/pull/21407)）：salvage #21400 + 图像支持
+- **ACP advertise and forward image prompts**（v0.12，[#18030](https://github.com/NousResearch/hermes-agent/pull/18030)）
+
+### 5. 与 IDE 的细节
+
+- **Translate Windows cwd for WSL sessions**（v0.13，[#18233](https://github.com/NousResearch/hermes-agent/pull/18233)）：WSL 环境的 ACP 适配
+- **Route Zed thoughts to reasoning + polish tool/context rendering**（v0.13，[#19139](https://github.com/NousResearch/hermes-agent/pull/19139)）
+- **VS Code setup for ACP Client extension**（v0.13 docs，[#20433](https://github.com/NousResearch/hermes-agent/pull/20433)）
+- **Correct ACP docs — Claude Code CLI has no --acp flag**（v0.13，[#21201](https://github.com/NousResearch/hermes-agent/pull/21201)）
+
+### 6. 仍未解决
+
+- **无流式文件编辑**：原章节问题 1 未变
+- **认证简化**：原章节问题 2 未变
+- **无并行 Agent 调度**：`/queue` 是入口但不是 Gateway 那样的全套 interrupt + queue 机制
