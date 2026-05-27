@@ -7,6 +7,14 @@
 
 > **2026-05 更新**：本研究原以 Hermes Agent v0.9.0（2026-04-13）为基线。v0.9 之后，Hermes 已经连续发布 v0.10 → v0.14 共五个版本（30 天内 ~4,500 commits，~735k 行新增），引入了 Transport ABC、Ink TUI、自治型 Curator、多 Agent Kanban、`/goal` Ralph 循环、PyPI 包、原生 Windows 等大题目。这些变化的总览见专题文章 [近期重大升级 — v0.10 到 v0.14](近期重大升级-v0.10到v0.14.md)；具体落到各章的影响通过每章末尾的"升级补遗"小节同步。
 
+## 系列研究
+
+本研究是 AI Agent / Coding Harness 源码深度研究系列的一部分，姊妹篇：
+
+- [Claude Code 源码解析](https://github.com/xiaonancs/claude-code-source-analysis) — Anthropic Claude Code v2.1.88 完整 Agent Harness 拆解（30 篇 / 23 个子系统 / 179 张架构图）
+- [OpenAI Codex 源码深度研究](https://github.com/xiaonancs/codex-source-analysis) — OpenAI Codex CLI + Rust workspace + TS/Python SDK 全栈（27 篇 / ~51 万字 / 149 张 Mermaid 图）
+- [OpenClaw 源码深度研究](https://github.com/xiaonancs/openclaw-study) — 358k Stars OpenClaw v2026.4.15 源码 + 23k commits + 生态调研
+
 ## 引言
 
 Hermes Agent 是 2026 年最受关注的开源 AI Agent 项目之一——90k Stars，Nous Research 出品，口号是"The agent that grows with you"。
